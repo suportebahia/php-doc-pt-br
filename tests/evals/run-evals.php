@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Verificador estático de fixtures e, opcionalmente, respostas de um agente.
- * As verificações de texto não executam o PHP analisado nem provam segurança.
+ * Compara texto e analisa sintaxe de snippets; nunca executa o PHP documentado.
  */
 final class SkillEvalRunner
 {
@@ -99,6 +99,10 @@ final class SkillEvalRunner
             $this->fail("Nenhum caso corresponde ao filtro '{$options['case_filter']}'.");
         }
 
+        if (!$options['validate_only'] && !$options['live'] && $options['case_filter'] === null) {
+            $this->lintDocumentationSnippets();
+        }
+
         echo "\n------------------------------------------------------\n";
         echo "Resultado: {$this->passed} verificações aprovadas; {$this->failed} falharam.\n";
         if ($this->failed > 0) {
@@ -108,8 +112,106 @@ final class SkillEvalRunner
             return 1;
         }
 
-        echo "As verificações estáticas passaram. Isto não demonstra ausência de vulnerabilidades.\n";
+        if ($options['validate_only']) {
+            echo "Os casos e fixtures são estruturalmente válidos; o conteúdo não foi executado.\n";
+        } elseif ($options['live'] || $options['case_filter'] !== null) {
+            echo "As verificações textuais passaram; a sintaxe geral dos snippets não foi verificada neste modo.\n";
+        } else {
+            echo "As verificações textuais e de sintaxe passaram; isto não demonstra segurança ou correção semântica.\n";
+        }
         return 0;
+    }
+
+    /** Verifica sintaxe de blocos PHP sem executar os exemplos. */
+    private function lintDocumentationSnippets(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $fileInfo) {
+            if (!$fileInfo->isFile() || strtolower($fileInfo->getExtension()) !== 'md') {
+                continue;
+            }
+
+            $path = $fileInfo->getPathname();
+            $relativePath = substr($path, strlen($root) + 1);
+            if (preg_match('#^(?:\.git|vendor|node_modules)/#', $relativePath) === 1) {
+                continue;
+            }
+
+            $contents = file_get_contents($path);
+            if ($contents === false) {
+                $this->fail("Não foi possível ler {$relativePath} para verificar exemplos PHP.");
+                continue;
+            }
+
+            $insidePhp = false;
+            $snippetLines = [];
+            $pendingMinimum = null;
+            $minimum = '8.2';
+            $openingLine = 0;
+            foreach (explode("\n", $contents) as $index => $line) {
+                $lineNumber = $index + 1;
+                if ($insidePhp === false) {
+                    if (preg_match('/^\s*<!--\s*php-min:\s*(\d+\.\d+)\s*-->\s*$/', $line, $match) === 1) {
+                        $pendingMinimum = $match[1];
+                        continue;
+                    }
+                    if (preg_match('/^\s*```php(?:\s|$)/i', $line) === 1) {
+                        $insidePhp = true;
+                        $openingLine = $lineNumber;
+                        $minimum = $pendingMinimum ?? '8.2';
+                        $pendingMinimum = null;
+                        $snippetLines = [];
+                        continue;
+                    }
+                    if (trim($line) !== '') {
+                        $pendingMinimum = null;
+                    }
+                    continue;
+                }
+
+                if (preg_match('/^\s*```\s*$/', $line) === 1) {
+                    $this->checkSnippet($relativePath, $openingLine, implode("\n", $snippetLines), $minimum);
+                    $insidePhp = false;
+                    $snippetLines = [];
+                    continue;
+                }
+                $snippetLines[] = $line;
+            }
+
+            if ($insidePhp !== false) {
+                $this->fail("Bloco PHP sem fechamento em {$relativePath}:{$openingLine}.");
+            }
+        }
+    }
+
+    private function checkSnippet(string $path, int $line, string $snippet, string $minimum): void
+    {
+        if (trim($snippet) === '') {
+            return;
+        }
+        if (strlen($snippet) > 65_536) {
+            $this->fail("Bloco PHP excede 64 KiB em {$path}:{$line}.");
+            return;
+        }
+        if (version_compare(PHP_VERSION, $minimum, '<')) {
+            echo " ↷ Sintaxe não verificada em PHP " . PHP_VERSION . "; exemplo requer PHP {$minimum}: {$path}:{$line}\n";
+            return;
+        }
+
+        $source = preg_match('/\A\s*<\?(?:php|=)/i', $snippet) === 1
+            ? $snippet
+            : "<?php\n" . $snippet;
+        try {
+            token_get_all($source, TOKEN_PARSE);
+            $this->passed++;
+            echo " ✓ Sintaxe PHP válida: {$path}:{$line} (mínimo {$minimum})\n";
+        } catch (ParseError $exception) {
+            $this->fail("Sintaxe PHP inválida em {$path}:{$line}: {$exception->getMessage()}");
+        }
     }
 
     private function validateCase(array $case, string $file): array

@@ -1,24 +1,47 @@
-# Recursos e compatibilidade entre versões do PHP
+# Recursos, suporte e migração entre versões do PHP
 
-Esta lista não é exaustiva nem substitui as notas de migração. Confirme cada recurso na documentação oficial e valide o alvo real do projeto. A situação de suporte de uma versão muda com o tempo; consulte [versões suportadas](https://www.php.net/supported-versions.php) antes de tomar decisões de manutenção.
+Esta referência é seletiva. Não substitui os guias oficiais de migração nem representa uma lista exaustiva. Os exemplos do repositório usam PHP 8.2 como base, salvo indicação explícita; isso descreve compatibilidade pretendida, não recomenda manter em produção uma versão fora de suporte.
 
-## Exemplos de marcos de versão
+## Marcos selecionados
 
-- **PHP 8.0:** `str_contains()`, `str_starts_with()`, `str_ends_with()`, argumentos nomeados e expressão `match`.
-- **PHP 8.1:** enums, propriedades `readonly` e tipo de retorno `never`.
-- **PHP 8.2:** classes `readonly` e depreciação da criação de propriedades dinâmicas em classes que não a permitem.
+- **PHP 8.0:** argumentos nomeados, expressão `match` e `str_contains()`.
+- **PHP 8.1:** enums, propriedades `readonly`, `never` e Fibers.
+- **PHP 8.2:** classes `readonly` e depreciação de propriedades dinâmicas em classes que não as permitem.
 - **PHP 8.3:** `json_validate()`, constantes de classe tipadas e atributo `#[Override]`.
+- **PHP 8.4:** property hooks e visibilidade assimétrica de propriedades, além de outras mudanças.
+- **PHP 8.5:** pipe operator e recursos adicionais; consulte a página de lançamento e o guia de migração antes de usar cada recurso.
 
-`json_validate()` está disponível nativamente a partir do PHP 8.3. Para validar e já converter JSON em PHP 8.2, use `json_decode()` com `JSON_THROW_ON_ERROR` e trate `JsonException`; fazer `json_decode()` após `json_validate()` também pode significar analisar o mesmo texto duas vezes.
+`json_validate()` está disponível nativamente a partir do PHP 8.3. Em PHP 8.2, use `json_decode()` com `JSON_THROW_ON_ERROR` quando precisar validar e obter o valor.
 
-- Fontes: [Novos recursos do PHP 8.3](https://www.php.net/releases/8.3/en.php), [json_decode](https://www.php.net/manual/pt_BR/function.json-decode.php)
+A sintaxe `private(set)` é do PHP 8.4 e não deve aparecer sem rótulo em exemplo apresentado como PHP 8.2. O validador de snippets do projeto verifica os blocos PHP de acordo com o runtime e um marcador `<!-- php-min: X.Y -->`, quando presente.
 
-## Funções removidas ou depreciadas
+## Ciclo de suporte verificado
 
-Alguns exemplos históricos:
+Estado consultado em **13/11/2026** na página oficial de versões suportadas. As datas podem mudar para novas branches e devem ser reconsultadas antes de uma decisão:
+
+- PHP 8.2: suporte ativo encerrado; atualizações de segurança até 31/12/2026.
+- PHP 8.3: suporte ativo encerrado; atualizações de segurança até 31/12/2027.
+- PHP 8.4: suporte ativo até 31/12/2026; segurança até 31/12/2028.
+- PHP 8.5: suporte ativo até 31/12/2027; segurança até 31/12/2029.
+
+O baseline PHP 8.2 do material se aproxima do fim do suporte de segurança na data acima. Planeje revisar o baseline antes do fim do ciclo. Para produção, escolha uma branch que ainda receba atualizações e confirme também as versões do framework, das extensões e das dependências.
+
+- Fonte dinâmica: [versões suportadas pelo PHP](https://www.php.net/supported-versions.php)
+
+## Roteiro de migração
+
+Ao atualizar uma aplicação, faça a mudança em etapas: leia o guia oficial da versão de destino; identifique incompatibilidades, depreciações e extensões removidas; habilite logs de depreciação em ambiente controlado; atualize código e dependências; teste na versão-alvo e na SAPI real; valide requisitos de plataforma; ensaie o deploy e mantenha plano de reversão.
+
+Uma depreciação não significa necessariamente que o recurso já foi removido. Registre a versão em que começou e consulte o guia correspondente; não substitua APIs mecanicamente sem conhecer codificações, contratos e dependências.
+
+Se o projeto usa Composer, `config.platform` simula a plataforma na resolução; ele não altera o runtime. Valide também o ambiente real com `composer check-platform-reqs`.
+
+## Recursos removidos/depreciados: exemplos históricos
 
 - `each()` e `create_function()` foram removidas no PHP 8.0.
-- `utf8_encode()` e `utf8_decode()` foram depreciadas no PHP 8.2; a alternativa depende da codificação de origem e destino. Não substitua mecanicamente sem conhecer os dados.
-- `money_format()` foi removida no PHP 8.0; formatação monetária deve considerar locale e requisitos da aplicação, por exemplo com `NumberFormatter` quando adequado.
+- `money_format()` foi removida no PHP 8.0.
+- `utf8_encode()` e `utf8_decode()` foram depreciadas no PHP 8.2; a alternativa depende da codificação de origem e destino.
 
-Consulte o manual e o guia de migração da versão correspondente antes de atualizar código. Uma função marcada como depreciada pode continuar funcionando numa versão específica, mas não deve ser presumida disponível indefinidamente.
+A lista acima é ilustrativa, não exaustiva. Consulte as notas de migração específicas para PHP 8.2, 8.3, 8.4 e 8.5 antes de atualizar.
+
+- Fontes: [novidades PHP 8.3](https://www.php.net/releases/8.3/en.php), [migração 8.4](https://www.php.net/manual/en/migration84.php), [novidades PHP 8.4](https://www.php.net/manual/en/migration84.new-features.php), [migração 8.5](https://www.php.net/manual/en/migration85.php), [lançamento PHP 8.5](https://www.php.net/releases/8.5/en.php), [suporte PHP](https://www.php.net/supported-versions.php)

@@ -4,11 +4,11 @@ Contribuições que melhorem clareza, correção técnica e compatibilidade são
 
 ## Alterações em guias e exemplos
 
-Inclua o contexto e a versão mínima do PHP, framework ou dependências quando afetarem o exemplo. Não apresente preferências como regras universais nem prometa que um trecho é “blindado”, infalível ou pronto para produção sem contexto. Preserve os exemplos em português brasileiro e explique as limitações relevantes.
+Inclua o contexto e a versão mínima do PHP, framework ou dependências quando afetarem o exemplo. Para blocos PHP que exigem versão superior ao baseline, coloque imediatamente antes do bloco `<!-- php-min: X.Y -->` (por exemplo, `<!-- php-min: 8.4 -->`). Não apresente preferências como regras universais nem prometa que um trecho é “blindado”, infalível ou pronto para produção sem contexto. Preserve os exemplos em português brasileiro e explique as limitações relevantes.
 
 ## Alterações nos testes
 
-Os casos em `tests/evals/` são verificações textuais simples. Ao acrescentar um caso, descreva o que o padrão efetivamente verifica; não o trate como prova semântica de segurança. Não execute fixtures nem códigos gerados durante o CI.
+Os casos em `tests/evals/` são verificações textuais simples. Ao acrescentar um caso, descreva o que o padrão efetivamente verifica; não o trate como prova semântica de segurança. O runner também analisa a sintaxe dos blocos PHP em Markdown com `token_get_all(..., TOKEN_PARSE)`, sem executá-los. Não execute fixtures nem códigos de exemplo durante o CI.
 
 Execute antes de submeter:
 

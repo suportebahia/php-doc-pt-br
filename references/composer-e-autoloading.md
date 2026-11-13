@@ -1,120 +1,85 @@
-# Composer e Autoloading (PSR-4)
+# Composer, dependências e autoloading
 
-Padrão da indústria para gerenciamento de dependências, autoloading de classes e estruturação de projetos modernos em PHP.
+Composer é o gerenciador de dependências mais usado no ecossistema PHP. Use a documentação da versão instalada: recursos de CLI, auditoria e políticas de segurança evoluem. O conteúdo abaixo orienta projetos de aplicação e bibliotecas, que têm políticas de lockfile diferentes.
 
----
+## `composer.json`, constraints e plataforma
 
-## 1. O que é o Composer?
-O **Composer** é o gerenciador de pacotes padrão do ecossistema PHP. Ele resolve dependências, baixa bibliotecas da comunidade (via Packagist) e gera automaticamente o mecanismo de carregamento de classes (**Autoloader**), eliminando a necessidade de múltiplos `require` ou `include` manuais.
+O `composer.json` declara metadados, dependências, requisitos de PHP/extensões, scripts e regras de autoload. Escolha constraints conforme a política de compatibilidade; uma faixa aberta como `>=8.2` pode aceitar versões futuras que não foram testadas.
 
-- Site oficial: [getcomposer.org](https://getcomposer.org/)
-- Repositório central de pacotes: [packagist.org](https://packagist.org/)
-
----
-
-## 2. Estrutura Padrão de Diretórios
-Um projeto PHP profissional estruturado com Composer segue a convenção:
-
-```text
-meu-projeto/
-├── src/                  # Código-fonte da aplicação (classes)
-│   ├── Controller/
-│   ├── Model/
-│   └── Service/
-├── tests/                # Testes automatizados (PHPUnit)
-├── vendor/               # Dependências baixadas pelo Composer (IGNORADO no .gitignore)
-├── composer.json         # Manifesto do projeto e dependências
-├── composer.lock         # Versões exatas instaladas (VERSIONADO no Git)
-└── public/               # Ponto de entrada web (DocumentRoot do servidor)
-    └── index.php
-```
-
----
-
-## 3. Autoloading com o Padrão PSR-4
-A norma **PSR-4 (PHP Standards Recommendation 4)** define como namespaces de classes correspondem diretamente à estrutura de pastas no disco.
-
-### Configuração no `composer.json`:
 ```json
 {
-    "name": "empresa/meu-projeto",
-    "description": "Aplicação PHP moderna desenvolvida nos padrões oficiais",
-    "type": "project",
-    "license": "MIT",
-    "require": {
-        "php": ">=8.2"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.0",
-        "phpstan/phpstan": "^1.11"
-    },
-    "autoload": {
-        "psr-4": {
-            "App\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\Tests\\": "tests/"
-        }
+  "name": "empresa/meu-projeto",
+  "type": "project",
+  "require": {
+    "php": ">=8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
     }
+  }
 }
 ```
 
-### Como funciona na prática:
-Se você criar uma classe em `src/Service/NotificadorEmail.php`:
-```php
-<?php
+Declare extensões necessárias usando os requisitos Composer apropriados. `config.platform` pode simular versões de PHP/extensões durante resolução, mas não muda o runtime. Use `composer check-platform-reqs` no ambiente real para verificar requisitos da plataforma.
 
-declare(strict_types=1);
+- Fontes: [schema do Composer](https://getcomposer.org/doc/04-schema.md), [configuração Composer](https://getcomposer.org/doc/06-config.md), [check-platform-reqs](https://getcomposer.org/doc/03-cli.md)
 
-namespace App\Service;
+## `install`, `update` e `composer.lock`
 
-class NotificadorEmail
+`composer install` instala as versões registradas em `composer.lock` quando o arquivo existe e está consistente. Sem lock, Composer precisa resolver versões segundo as constraints. `composer update` resolve versões permitidas e altera o lock; revise o diff e rode testes antes de aceitar a mudança.
+
+Aplicações normalmente versionam `composer.lock` para reproduzir deploys. Bibliotecas reutilizáveis frequentemente não versionam lock como contrato para consumidores: o lock da biblioteca não fixa as dependências de quem a instala. Escolha a política que corresponde ao tipo de pacote.
+
+Um fluxo de atualização cuidadoso inclui validar o manifesto, atualizar de forma intencional, revisar mudanças diretas e transitivas, executar testes e análise estática, verificar compatibilidade PHP/extensões e revisar alertas de segurança.
+
+- Fontes: [uso básico do Composer](https://getcomposer.org/doc/01-basic-usage.md), [bibliotecas](https://getcomposer.org/doc/02-libraries.md)
+
+## PSR-4 e autoload
+
+PSR-4 define como prefixos de namespace correspondem a diretórios-base. O case dos nomes e dos caminhos importa para portabilidade entre sistemas de arquivos. O autoloader é normalmente gerado pelo Composer e incluído uma vez no ponto de entrada.
+
+```json
 {
-    public function enviar(string $destinatario, string $mensagem): bool
-    {
-        // Lógica de envio
-        return true;
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
     }
+  }
 }
 ```
 
-No ponto de entrada (`public/index.php`), basta incluir o autoloader uma única vez:
+Para uma classe `App\Service\Notificador` em `src/Service/Notificador.php`, inclua o autoloader gerado:
+
 ```php
 <?php
 
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-use App\Service\NotificadorEmail;
-
-$notificador = new NotificadorEmail();
-$notificador->enviar('dev@empresa.com', 'Bem-vindo ao PHP moderno!');
 ```
-- Fonte oficial: [PHP-FIG PSR-4](https://www.php-fig.org/psr/psr-4/)
 
----
+Com PSR-4, adicionar um novo arquivo que segue um mapeamento já configurado normalmente não exige `composer dump-autoload`. Regenerar o autoloader pode ser necessário quando a configuração muda, ou para atualizar mapas otimizados/classmap conforme o modo usado. Não use esse comando como correção automática para todo erro de namespace.
 
-## 4. Comandos Essenciais do Composer
+- Fontes: [PSR-4](https://www.php-fig.org/psr/psr-4/), [autoloading Composer](https://getcomposer.org/doc/01-basic-usage.md#autoloading), [schema de autoload](https://getcomposer.org/doc/04-schema.md)
 
-| Comando | Finalidade |
-| :--- | :--- |
-| `composer init` | Inicia um novo `composer.json` interativamente. |
-| `composer install` | Instala as dependências exatas travadas no `composer.lock`. |
-| `composer update` | Atualiza as dependências para as versões mais recentes permitidas e recria o `lock`. |
-| `composer require <pacote>` | Adiciona uma dependência de produção em `require`. |
-| `composer require --dev <pacote>` | Adiciona uma dependência de desenvolvimento (testes, linters) em `require-dev`. |
-| `composer dump-autoload` | Regenera o mapa de classes do autoloader após criar novos arquivos. |
-| `composer audit` | Verifica vulnerabilidades de segurança conhecidas nas bibliotecas instaladas. |
+## Auditoria e execução de código
 
----
+`composer audit` consulta avisos e políticas disponíveis na versão/configuração do Composer usada. Ele pode localizar advisories conhecidos; não comprova ausência de vulnerabilidades nem substitui atualização e revisão.
 
-## 5. Boas Práticas em Produção
-No ambiente de produção (deploy), nunca instale dependências de teste e otimize o mapa de carregamento para máximo desempenho:
+Composer pode executar scripts do pacote raiz; plugins também executam código. Revise `scripts` e permissões de plugins, mantenha `allow-plugins` restrito aos plugins necessários e use opções como `--no-scripts`/`--no-plugins` apenas quando apropriado ao fluxo. Essas opções podem impedir etapas necessárias e não tornam segura uma dependência desconhecida.
+
+Credenciais para repositórios privados não devem ser gravadas em `composer.json`, no histórico Git ou em logs. Use `auth.json` local/global ou mecanismos de segredos do CI conforme a documentação, ignore arquivos locais sensíveis e revogue/rote credenciais expostas.
+
+- Fontes: [Composer audit e comandos](https://getcomposer.org/doc/03-cli.md), [allow-plugins](https://getcomposer.org/doc/06-config.md), [scripts](https://getcomposer.org/doc/articles/scripts.md), [autenticação para pacotes privados](https://getcomposer.org/doc/articles/authentication-for-private-packages.md)
+
+## Comandos úteis
+
 ```bash
-composer install --no-dev --optimize-autoloader --no-interaction
+composer validate --strict
+composer install --no-interaction
+composer check-platform-reqs
+composer audit
 ```
-- `--no-dev`: Não baixa bibliotecas de teste (PHPUnit, PHPStan), reduzindo o tamanho do deploy.
-- `--optimize-autoloader`: Converte a resolução PSR-4 em um mapa estático de arquivos (`classmap`), acelerando drasticamente o tempo de resposta do PHP.
+
+Em produção, um projeto de aplicação pode usar `composer install --no-dev --optimize-autoloader --no-interaction` quando o lockfile, a plataforma e a estratégia de deploy estiverem corretos. Confirme as opções e requisitos da versão de Composer adotada; otimização pode ajudar o autoloader, mas o ganho depende da aplicação e do ambiente.

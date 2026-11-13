@@ -1,6 +1,6 @@
 # Exemplo didático: autenticação e acesso ao banco
 
-O primeiro trecho contém padrões que não devem ser reutilizados. O segundo mostra algumas correções para PHP 8.2+, mas é deliberadamente parcial: não é uma implementação pronta para produção nem uma auditoria de segurança.
+O primeiro trecho contém padrões que não devem ser reutilizados. O segundo mostra algumas correções para PHP 8.2+, mas permanece parcial: não é uma implementação pronta para produção nem uma auditoria de segurança.
 
 ## Trecho com problemas
 
@@ -23,7 +23,7 @@ declare(strict_types=1);
 function autenticar(PDO $pdo, string $email, string $senha): ?array
 {
     $stmt = $pdo->prepare(
-        'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = :email LIMIT 1'
+        'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = :email'
     );
     $stmt->execute(['email' => $email]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -31,11 +31,6 @@ function autenticar(PDO $pdo, string $email, string $senha): ?array
     if (!is_array($usuario) || !password_verify($senha, $usuario['senha_hash'])) {
         return null;
     }
-
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
-    session_regenerate_id(true);
 
     return [
         'id' => (int) $usuario['id'],
@@ -45,9 +40,13 @@ function autenticar(PDO $pdo, string $email, string $senha): ?array
 }
 ```
 
-Este exemplo ilustra parâmetros SQL e verificação de hash com a API nativa. A aplicação ainda precisa integrar a conexão e as opções de cookie de sessão, verificar autorização em cada operação, aplicar limites contra tentativas automatizadas, tratar erros e testar os seus requisitos. A configuração de cookies e CSRF depende do fluxo e do ambiente; não existe uma combinação única adequada a todos os sites.
+A função verifica credenciais e devolve dados necessários ao fluxo, mas não autentica uma sessão sozinha. O chamador ainda precisa estabelecer estado autenticado depois de confirmar a identidade, regenerar o ID no ponto correto e aplicar autorização em cada operação. A política de exclusão da sessão anterior depende do handler, da concorrência e do fluxo; não copie `session_regenerate_id(true)` como regra universal.
+
+Antes de iniciar a sessão, configure opções compatíveis com o ambiente. O manual recomenda `session.use_strict_mode`; em produção com HTTPS, use cookies seguros e teste atributos, CSRF, expiração, login, elevação de privilégio e logout. Proteja ainda contra tentativas automatizadas e não revele detalhes internos ao cliente.
+
+Este trecho não mostra validação de entrada, resposta HTTP, limitação de tentativas, tratamento de falhas, conexão configurada nem autorização. Ele serve somente para ilustrar prepared statements e as funções nativas de hash de senha.
 
 - [Prepared statements do PDO](https://www.php.net/manual/pt_BR/pdo.prepared-statements.php)
 - [Funções de senha](https://www.php.net/manual/pt_BR/book.password.php)
 - [Segurança de sessões](https://www.php.net/manual/pt_BR/security.sessions.php)
-- [Declarações de tipo](https://www.php.net/manual/pt_BR/language.types.declarations.php)
+- [Parâmetros de segurança da sessão](https://www.php.net/manual/pt_BR/session.security.ini.php)

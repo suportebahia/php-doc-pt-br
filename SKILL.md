@@ -63,4 +63,15 @@ Use o manual do PHP, a especificação PHP-FIG e a documentação oficial das de
 - `references/testes-e-analise-estatica.md`
 - `references/armadilhas-e-boas-praticas.md`
 - `references/versoes-e-depreciacoes.md`
+- `references/runtime-cli-fpm.md`
+- `references/aplicacoes-web-e-http.md`
+- `references/uploads-e-downloads.md`
+- `references/filesystem-e-streams.md`
+- `references/json-xml-csv.md`
+- `references/strings-unicode-regex.md`
+- `references/datas-e-timezones.md`
+- `references/banco-de-dados-mysqli.md`
+- `references/schema-e-migrations.md`
+- `references/frameworks-e-padroes-ecossistema.md`
+- `references/performance-concorrencia-e-operacao.md`
 - `references/indice-geral-manual-ptbr.md`

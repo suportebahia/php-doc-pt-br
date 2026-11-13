@@ -24,6 +24,7 @@ Mantenha os textos genéricos e claros. Remova afirmações dependentes de sess�
 - diferencie verificação textual, teste funcional e auditoria de segurança;
 - evite promessas como “100% seguro”, “blindado” ou “livre de alucinações”;
 - atualize os casos de teste relacionados e execute as verificações disponíveis;
+- marque a versão mínima de blocos PHP posteriores ao baseline com `<!-- php-min: X.Y -->`; o runner analisa sintaxe e não executa esses blocos;
 - documente limitações materiais sem criar garantias que os testes não sustentam.
 
 ## Ferramentas

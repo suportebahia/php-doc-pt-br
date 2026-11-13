@@ -8,6 +8,8 @@ Em código novo, tipos de parâmetros, propriedades e retornos tornam os contrat
 
 `declare(strict_types=1);` pode ser uma boa escolha para arquivos PHP novos. O seu efeito é local ao arquivo e relaciona-se sobretudo a chamadas de funções feitas a partir desse arquivo; não transforma automaticamente toda a aplicação em um sistema de tipos estrito. Ao alterar um sistema existente, considere a compatibilidade e os testes.
 
+Como a diretiva afeta chamadas originadas no arquivo que a declara, confirme qual arquivo faz a chamada quando investigar coerção. Argumentos nomeados foram introduzidos no PHP 8.0 e usam os nomes dos parâmetros; mudar esses nomes em APIs públicas pode afetar chamadores que os utilizem. Essa preocupação é especialmente relevante ao implementar contratos compartilhados.
+
 ```php
 <?php
 

@@ -62,6 +62,24 @@ try {
         }
     }
 
+    $snippetPath = dirname(__DIR__, 2) . '/docs/.snippet-linter-' . bin2hex(random_bytes(6)) . '.md';
+    $snippetContent = "```php\n<?php\necho 'NAO_EXECUTAR_SNIPPET';\n```\n\n```php\n<?php\n\$broken = ;\n```\n";
+    $snippetWritten = file_put_contents($snippetPath, $snippetContent);
+    check($snippetWritten !== false, 'fixture temporária de snippets criada');
+    try {
+        [$snippetCode, $snippetOutput] = runProcess([PHP_BINARY, $runner]);
+        check(
+            $snippetCode !== 0
+                && str_contains($snippetOutput, 'Sintaxe PHP inválida')
+                && !str_contains($snippetOutput, 'NAO_EXECUTAR_SNIPPET'),
+            'sintaxe de snippets é verificada sem executar o código documentado'
+        );
+    } finally {
+        if (is_file($snippetPath)) {
+            unlink($snippetPath);
+        }
+    }
+
     $marker = sys_get_temp_dir() . '/php-doc-pt-br-shell-' . bin2hex(random_bytes(6));
     $commandJson = json_encode(
         [PHP_BINARY, '-r', 'echo $argv[1];', 'texto literal; touch ' . $marker],
