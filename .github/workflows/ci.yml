@@ -53,6 +53,7 @@ jobs:
                 $conteudo = file_get_contents($arq);
                 preg_match_all("/https:\/\/www\.php\.net\/manual\/pt_BR\/[^\)\s\"]+/", $conteudo, $matches);
                 foreach ($matches[0] as $link) {
+                    $link = rtrim($link, '.,;:!?');
                     if (str_contains($link, "example.com")) continue;
                     // Validação robusta com filter_var e prefixo canônico:
                     if (!filter_var($link, FILTER_VALIDATE_URL) || !str_starts_with($link, "https://www.php.net/manual/pt_BR/")) {

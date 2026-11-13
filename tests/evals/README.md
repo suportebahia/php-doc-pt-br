@@ -31,6 +31,7 @@ Filtra a execução para rodar apenas um cenário pelo ID:
 ```bash
 php tests/evals/run-evals.php --case=autenticacao-segura
 ```
+> ⚠️ **Nota:** O parâmetro `--case` destina-se exclusivamente ao desenvolvimento e depuração local. No pipeline de CI, todos os testes rodam obrigatoriamente sem filtros.
 
 ### 4. Modo Live com IA em Tempo Real (`--live`)
 Envia o `prompt` diretamente para um agente ou LLM e valida a resposta em tempo real.

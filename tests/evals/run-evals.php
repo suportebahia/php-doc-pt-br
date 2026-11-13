@@ -117,6 +117,10 @@ final class DynamicSkillEvalRunner
             $erros[] = "'must_not_contain' deve ser um array em {$arquivo}";
         }
 
+        if (isset($caso['patterns_not_match']) && !is_array($caso['patterns_not_match'])) {
+            $erros[] = "'patterns_not_match' deve ser um array quando fornecido em {$arquivo}";
+        }
+
         return $erros;
     }
 
