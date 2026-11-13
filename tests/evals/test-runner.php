@@ -38,6 +38,13 @@ try {
     [$missingCommandCode] = runProcess([PHP_BINARY, $runner, '--live']);
     check($missingCommandCode === 2, 'modo live exige configuração explícita do executável');
 
+    $functionalTest = __DIR__ . '/../functional/json-object-decoder.php';
+    [$functionalCode, $functionalOutput] = runProcess([PHP_BINARY, $functionalTest]);
+    check(
+        $functionalCode === 0 && str_contains($functionalOutput, 'Testes funcionais do decoder JSON passaram.'),
+        'o exemplo JSON allowlistado passa em um processo PHP separado'
+    );
+
     $casePath = $casesDirectory . '/zz-runner-path-' . bin2hex(random_bytes(6)) . '.json';
     $pathTraversalCase = [
         'id' => 'teste-path-traversal',

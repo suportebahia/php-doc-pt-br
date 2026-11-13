@@ -24,7 +24,15 @@ Estado consultado em **13/11/2026** na página oficial de versões suportadas. A
 - PHP 8.4: suporte ativo até 31/12/2026; segurança até 31/12/2028.
 - PHP 8.5: suporte ativo até 31/12/2027; segurança até 31/12/2029.
 
-O baseline PHP 8.2 do material se aproxima do fim do suporte de segurança na data acima. Planeje revisar o baseline antes do fim do ciclo. Para produção, escolha uma branch que ainda receba atualizações e confirme também as versões do framework, das extensões e das dependências.
+O baseline PHP 8.2 do material se aproxima do fim do suporte de segurança na data acima. Para produção, escolha uma branch que ainda receba atualizações e confirme também as versões do framework, das extensões e das dependências.
+
+## Plano proposto de atualização do baseline
+
+Este plano foi elaborado em **13/11/2026** e ainda não altera o baseline atual. A proposta é usar PHP 8.4 como piso de compatibilidade a partir de **01/01/2027**, pois essa branch continua recebendo correções críticas de segurança até 31/12/2028. Para novos ambientes, prefira PHP 8.5 enquanto a compatibilidade da aplicação e das dependências permitir, porque o suporte ativo dessa branch está previsto até 31/12/2027. O piso 8.4, após 2026, é apenas uma meta de compatibilidade sob suporte de segurança; não equivale a suporte ativo.
+
+Até **15/12/2026**, revise exemplos, ferramentas e dependências para identificar trechos que exigem PHP 8.4 ou superior. Prepare uma mudança separada para janeiro que atualize as menções ao baseline, verifique os snippets em PHP 8.4 e 8.5 e rotule recursos exclusivos de PHP 8.5 com `<!-- php-min: 8.5 -->`. Não remova jobs antigos antes dessa revisão.
+
+Na mesma mudança que atualizar a matriz do CI, atualize os checks obrigatórios da proteção de `main` para os nomes de job efetivamente publicados. A branch principal atualmente exige checks de PHP 8.2, 8.3, 8.4 e 8.5; remover jobs sem ajustar esses contextos pode bloquear futuras mesclagens. Reavalie o piso até **30/06/2027** e antes do fim do suporte de segurança do PHP 8.4, em 31/12/2028. Consulte novamente a fonte oficial, pois o calendário pode mudar.
 
 - Fonte dinâmica: [versões suportadas pelo PHP](https://www.php.net/supported-versions.php)
 

@@ -1,6 +1,6 @@
 # Verificações estáticas da skill
 
-Este diretório contém casos JSON, fixtures textuais e um runner simples. As verificações de conteúdo procuram requisitos ou padrões específicos; no modo padrão o runner também analisa a sintaxe dos blocos PHP em Markdown com o parser do PHP. Nenhum desses modos executa as fixtures ou exemplos, testa a aplicação em produção ou prova correção/segurança. Um resultado aprovado significa apenas que os critérios implementados passaram.
+Este diretório contém casos JSON, fixtures textuais e um runner simples. As verificações de conteúdo procuram requisitos ou padrões específicos; no modo padrão o runner também analisa a sintaxe dos blocos PHP em Markdown com o parser do PHP. O CI não executa as fixtures nem os blocos PHP dos documentos. A exceção explicitamente allowlistada é `tests/functional/json-object-decoder.php`, executada em um processo PHP separado e limitada a uma função pura. Nenhum desses testes verifica a aplicação em produção ou prova correção/segurança; o processo separado não é uma sandbox.
 
 ## Execução local
 
@@ -16,7 +16,7 @@ php tests/evals/validate-links.php
 
 `--validate-only` valida o formato dos casos e a existência das fixtures dentro da pasta esperada. O modo padrão compara cada fixture com os requisitos definidos no JSON e analisa os blocos `php` dos arquivos Markdown versionados. Blocos com requisito superior ao PHP em execução devem ser precedidos por `<!-- php-min: X.Y -->`; são verificados nas versões compatíveis da matriz. `token_get_all(..., TOKEN_PARSE)` analisa sintaxe sem executar o código. Os filtros são convenientes para desenvolvimento; o CI executa o conjunto completo.
 
-`test-runner.php` verifica limites do runner, incluindo rejeição de caminhos de fixture fora da pasta, passagem literal de argumentos, timeout e encerramento do modo live, limite combinado de saída e validação de snippets sem execução. `validate-links.php` verifica o formato e o domínio dos links nas referências; não faz pedidos HTTP para provar que cada página continua disponível.
+`test-runner.php` verifica limites do runner, incluindo rejeição de caminhos de fixture fora da pasta, passagem literal de argumentos, timeout do processo direto, limite combinado de saída e validação de snippets sem execução. Também executa somente o teste funcional explicitamente indicado no próprio script; não descobre testes por glob. `validate-links.php` verifica o formato e o domínio dos links nas referências; não faz pedidos HTTP para provar que cada página continua disponível.
 
 ## Avaliação opcional com um agente local
 
@@ -35,7 +35,7 @@ export AI_EVAL_COMMAND_JSON='["claude","-p"]'
 php tests/evals/run-evals.php --live
 ```
 
-O runner limita a execução a 60 segundos por padrão. `--timeout-seconds=N` pode reduzir esse limite para um valor entre 1 e 60, mas não aumentá-lo. O runner captura stdout e stderr em blocos limitados e encerra o processo se a saída conjunta exceder 1 MiB. A resposta é comparada com as mesmas verificações textuais e pode falhar por diferenças de redação, comentários ou formato. Uma aprovação tampouco constitui validação semântica do código.
+O runner limita a execução a 60 segundos por padrão. `--timeout-seconds=N` pode reduzir esse limite para um valor entre 1 e 60, mas não aumentá-lo. O runner captura stdout e stderr em blocos limitados e encerra o processo direto se a saída conjunta exceder 1 MiB ou se o tempo acabar. Ele não implementa gestão de grupos de processos e não garante encerrar subprocessos que o executável iniciado possa criar; para comandos que criam processos filhos, use uma sandbox ou supervisor externo apropriado. O modo `--live` executa um programa escolhido pelo usuário e não é uma fronteira de segurança.
 
 ## Formato dos casos
 
