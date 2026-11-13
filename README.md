@@ -1,24 +1,66 @@
 # php-doc-pt-br
 
-Skill de documentação PHP em português para agentes de IA, baseada no manual oficial (https://www.php.net/manual/pt_BR/).
+> **Skill e Mentor de Desenvolvimento PHP Oficial em Português para Agentes de IA e Desenvolvedores.**  
+> Baseado exclusivamente no manual oficial do PHP (`https://www.php.net/manual/pt_BR/`).
 
-## O que é
+---
 
-Uma skill que ensina agentes de IA a responder dúvidas sobre o core do PHP com precisão, sempre citando a fonte oficial em português.
+## 🎯 Objetivo
 
-## Como usar
+Ensinar agentes de IA (Claude Code, Antigravity IDE, Cursor, etc.) a atuar como **desenvolvedores e mentores sênior em PHP**. 
 
-- **Claude Code**: abra o projeto; o `CLAUDE.md` importa `AGENTS.md` automaticamente.
-- **Antigravity IDE**: reconhece `AGENTS.md` nativamente.
-- **Outros agentes**: carregue `SKILL.md` como skill.
+A skill garante que qualquer pessoa — desde um **iniciante/leigo** até um **arquiteto de software** — receba:
+- Código PHP moderno (PHP 8.2+), tipado, limpo e seguro do zero.
+- Explicações didáticas e descomplicadas, fundamentadas nas boas práticas do manual.
+- Auditoria preventiva de segurança (mitigação de SQL Injection, XSS, CSRF, sessões e uploads).
+- Links canônicos para cada conceito consultado no manual oficial em português.
 
-## Estrutura
+---
 
-- `SKILL.md` — definição da skill.
-- `AGENTS.md` — regras de manutenção.
-- `CLAUDE.md` — importe para Claude Code.
-- `references/` — material de apoio atemporal.
+## ⚡ Modos Operacionais e Comandos da Skill
 
-## Licença
+Quando esta skill está ativa, o agente responde de forma especializada aos seguintes comandos e intenções:
 
-MIT.
+| Comando / Intenção | Descrição |
+| :--- | :--- |
+| **`/codificar`** | Escreve código moderno com `declare(strict_types=1);`, tipagem estrita, PSR-12 e PDO seguro. |
+| **Mentor Didático** | Explica conceitos técnicos para leigos e iniciantes com analogias e comentários claros no código. |
+| **`/seguranca`** | Audita códigos em busca de vulnerabilidades (SQLi, XSS, hash de senhas, sessões) e entrega a versão blindada. |
+| **`/modernizar`** | Refatora código antigo (PHP 5/7) para recursos modernos do PHP 8 (match, readonly, enums, atributos). |
+| **`/consultar`** | Consulta a assinatura oficial de funções nativas, tipos de parâmetros, versões e link do manual. |
+
+---
+
+## 📚 Base de Conhecimento e Referências
+
+O repositório inclui guias estruturados e atemporais na pasta `references/`:
+
+- **[Padrões Oficiais de Desenvolvimento](references/padroes-de-desenvolvimento.md)**: Regras de sintaxe, tipagem estrita, retorno antecipado e estilo de código.
+- **[Guia de Segurança Essencial](references/seguranca-essencial.md)**: PDO contra SQLi, `htmlspecialchars`, `password_hash`, sessões e upload com Fileinfo.
+- **[POO e Recursos Modernos](references/poo-e-recursos-modernos.md)**: Constructor Promotion, classes `readonly`, Enums, `match` e Generators.
+- **[Banco de Dados com PDO](references/banco-de-dados-pdo.md)**: Conexão resiliente, transações atômicas e consultas preparadas.
+- **[Armadilhas e Boas Práticas](references/armadilhas-e-boas-praticas.md)**: Comparação estrita vs frouxa, pegadinhas de `empty()`, `isset()` e precisão `float`.
+- **[Versões e Depreciações](references/versoes-e-depreciacoes.md)**: Histórico de recursos do PHP 8.0 ao 8.3+ e funções descontinuadas.
+- **[Índice Geral do Manual Oficial](references/indice-geral-manual-ptbr.md)**: Catálogo completo de links diretos de todas as seções do manual pt-BR.
+
+---
+
+## 🚀 Como Usar no seu Projeto
+
+### No Claude Code
+Abra o repositório diretamente no Claude Code. O arquivo `CLAUDE.md` importa automaticamente as instruções do `AGENTS.md`.
+
+### No Antigravity IDE
+O Antigravity reconhece o arquivo `AGENTS.md` e a pasta de skills nativamente ao abrir o workspace.
+
+### Como Submódulo Git em Qualquer Projeto
+Para que sua IA consulte esta skill dentro de outro projeto, adicione este repositório como submódulo:
+```bash
+git submodule add https://github.com/suportebahia/php-doc-pt-br.git .skills/php-doc-pt-br
+```
+
+---
+
+## 📜 Licença
+
+Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
