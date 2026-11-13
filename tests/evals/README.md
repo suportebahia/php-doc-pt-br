@@ -1,44 +1,45 @@
-# Verificações estáticas da skill
+# Verificações e testes
 
-Este diretório contém casos JSON, fixtures textuais e um runner simples. As verificações de conteúdo procuram requisitos ou padrões específicos; no modo padrão o runner também analisa a sintaxe dos blocos PHP em Markdown com o parser do PHP. O CI não executa as fixtures nem os blocos PHP dos documentos. A exceção explicitamente allowlistada é `tests/functional/json-object-decoder.php`, executada em um processo PHP separado e limitada a uma função pura. Nenhum desses testes verifica a aplicação em produção ou prova correção/segurança; o processo separado não é uma sandbox.
+Este diretório contém casos JSON, verificações textuais, análise sintática e uma allowlist de testes funcionais. São camadas distintas: uma não substitui a outra, e nenhuma prova por si só a correção ou a segurança de uma aplicação.
+
+## Tipos de verificação
+
+- **Validação e verificações textuais:** `run-evals.php --validate-only` valida o formato dos casos e os nomes/caminhos das fixtures. O modo padrão compara fixtures com requisitos textuais e padrões definidos nos casos; esses resultados são heurísticos e podem ter falsos positivos ou negativos.
+- **Análise sintática:** o modo padrão também analisa os blocos PHP dos arquivos Markdown versionados com `token_get_all(..., TOKEN_PARSE)`. O parser verifica sintaxe, mas não executa os snippets.
+- **Testes funcionais:** `test-runner.php` chama apenas os caminhos fixos listados no array `$functionalTests`. Cada teste funcional é iniciado por uma invocação própria de `PHP_BINARY`, num processo separado. Atualmente, a allowlist contém:
+  - `tests/functional/json-object-decoder.php`
+  - `tests/functional/strict-date-validation.php`
+  - `tests/functional/preg-match-result.php`
+
+Os testes funcionais carregam somente helpers PHP puros selecionados em `examples/`. Não se descobrem testes por glob, não se executam fixtures de `tests/evals/` nem blocos PHP em Markdown, e os exemplos cobertos não usam rede, banco de dados, credenciais ou dados reais. Processos separados reduzem interferências entre testes, mas **não constituem uma sandbox**.
 
 ## Execução local
 
-O runner requer PHP 8.2 ou posterior e não instala dependências:
+Requer PHP 8.2 ou posterior e não instala dependências:
 
 ```bash
 php tests/evals/run-evals.php --validate-only
 php tests/evals/run-evals.php
-php tests/evals/run-evals.php --case=autenticacao-segura
 php tests/evals/test-runner.php
 php tests/evals/validate-links.php
 ```
 
-`--validate-only` valida o formato dos casos e a existência das fixtures dentro da pasta esperada. O modo padrão compara cada fixture com os requisitos definidos no JSON e analisa os blocos `php` dos arquivos Markdown versionados. Blocos com requisito superior ao PHP em execução devem ser precedidos por `<!-- php-min: X.Y -->`; são verificados nas versões compatíveis da matriz. `token_get_all(..., TOKEN_PARSE)` analisa sintaxe sem executar o código. Os filtros são convenientes para desenvolvimento; o CI executa o conjunto completo.
+O CI mantém a matriz PHP 8.2–8.5 e executa a validação, as verificações textuais e sintáticas, os testes funcionais allowlistados e a validação de links. O CI não executa snippets Markdown nem uma avaliação `--live`. Os testes de regressão que exercitam a opção `--live` com comandos PHP sintéticos e fixos são omitidos quando `CI=true`; localmente, eles não usam agente externo. O próprio modo `--live` executa um programa local escolhido pelo usuário, não é sandbox e não deve ser usado como fronteira de segurança.
 
-`test-runner.php` verifica limites do runner, incluindo rejeição de caminhos de fixture fora da pasta, passagem literal de argumentos, timeout do processo direto, limite combinado de saída e validação de snippets sem execução. Também executa somente o teste funcional explicitamente indicado no próprio script; não descobre testes por glob. `validate-links.php` verifica o formato e o domínio dos links nas referências; não faz pedidos HTTP para provar que cada página continua disponível.
+Os filtros `--case=...` são convenientes durante o desenvolvimento; o CI executa o conjunto textual completo. Blocos que requerem versão posterior ao baseline devem ser precedidos por `<!-- php-min: X.Y -->` e são analisados nas versões compatíveis da matriz.
 
-## Avaliação opcional com um agente local
+Cada arquivo `cases/*.json` contém `id`, `titulo`, `prompt`, `fixture`, `must_contain` e `must_not_contain`; `patterns_not_match` é opcional. Os campos de requisitos são listas de strings, e as expressões regulares devem ser válidas. `fixture` deve ser apenas o nome de um arquivo PHP dentro de `fixtures/`; o runner valida e lê o conteúdo para as verificações textuais, mas não executa a fixture.
 
-O modo `--live` executa um programa local escolhido pelo usuário. O runner recebe a configuração como um array JSON de argumentos e inicia o executável sem passar por um shell. Isso reduz riscos de interpretação de metacaracteres, mas não torna confiável um executável desconhecido: esse programa pode ter permissões, ler arquivos e acessar à rede conforme o ambiente local. Use apenas programas que conhece e confia. O modo não é executado no CI.
+## Avaliação opcional com programa local
 
-O prompt do caso é acrescentado como último argumento. Exemplo para Claude Code:
+O modo `--live` executa o programa local escolhido pelo usuário. O runner recebe o comando como um array JSON de argumentos e inicia o executável sem shell, o que reduz a interpretação de metacaracteres, mas não torna confiável um executável desconhecido: ele poderá ter as permissões do usuário, incluindo ler arquivos ou acessar a rede. Use apenas programas conhecidos e confiáveis. Este modo não faz parte do CI.
+
+Exemplo local para Claude Code:
 
 ```bash
 php tests/evals/run-evals.php --live --agent-command-json='["claude","-p"]'
 ```
 
-Ou configure a variável de ambiente:
+Também é possível configurar `AI_EVAL_COMMAND_JSON` com o mesmo array JSON. O runner limita a execução a 60 segundos por padrão; `--timeout-seconds=N` pode reduzir o limite para 1–60 segundos, nunca aumentá-lo. A saída conjunta de stdout e stderr é limitada a 1 MiB. O runner encerra o processo direto ao atingir o limite de saída ou o timeout, mas não gere grupos de processos nem garante encerrar subprocessos que o programa iniciado possa criar. Use supervisor ou ambiente isolado adequado quando houver processos filhos. `--live` não é uma sandbox nem uma fronteira de segurança.
 
-```bash
-export AI_EVAL_COMMAND_JSON='["claude","-p"]'
-php tests/evals/run-evals.php --live
-```
-
-O runner limita a execução a 60 segundos por padrão. `--timeout-seconds=N` pode reduzir esse limite para um valor entre 1 e 60, mas não aumentá-lo. O runner captura stdout e stderr em blocos limitados e encerra o processo direto se a saída conjunta exceder 1 MiB ou se o tempo acabar. Ele não implementa gestão de grupos de processos e não garante encerrar subprocessos que o executável iniciado possa criar; para comandos que criam processos filhos, use uma sandbox ou supervisor externo apropriado. O modo `--live` executa um programa escolhido pelo usuário e não é uma fronteira de segurança.
-
-## Formato dos casos
-
-Cada arquivo `cases/*.json` contém `id`, `titulo`, `prompt`, `fixture`, `must_contain` e `must_not_contain`; `patterns_not_match` é opcional. Os campos de requisitos são listas de strings e as expressões regulares devem ser válidas. A fixture deve ser um arquivo PHP dentro de `fixtures/`; o runner não executa o seu conteúdo.
-
-As verificações por substring e regex são heurísticas simples. Podem produzir falsos positivos e falsos negativos: por exemplo, uma palavra proibida em comentário pode falhar e código inseguro equivalente pode não conter a sequência procurada. Acrescente testes funcionais, análise estática e revisão adequada ao sistema quando necessário.
+`validate-links.php` verifica o formato e o domínio dos links nas referências; não faz pedidos HTTP para provar que cada página continua disponível. As verificações textuais podem sinalizar palavras em comentários e não detectar código equivalente com outra forma. Use revisão e testes adequados ao sistema quando necessário.
