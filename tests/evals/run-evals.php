@@ -26,8 +26,17 @@ final class DynamicSkillEvalRunner
         echo " 🛡️  Suíte de Evals da Skill: php-doc-pt-br\n";
         if ($opcoes['validate_only']) {
             echo " Modo: Validação de Schema dos Casos (JSON)\n";
+            if ($opcoes['live']) {
+                echo " (Nota: --validate-only tem precedência sobre --live)\n";
+            }
         } elseif ($opcoes['live']) {
             echo " Modo: LIVE (Execução em Tempo Real com IA)\n";
+            $cmd = $opcoes['agent_cmd'] ?? getenv('AI_EVAL_CMD');
+            if (!$cmd) {
+                echo "\n❌ Erro: Modo Live ativado, mas nenhum comando de IA foi configurado.\n";
+                echo "   Use --agent-cmd=\"claude -p\" ou defina a variável AI_EVAL_CMD.\n\n";
+                return 1;
+            }
         } else {
             echo " Modo: Fixtures Canônicas (Offline / CI)\n";
         }
@@ -43,6 +52,7 @@ final class DynamicSkillEvalRunner
 
         sort($arquivosCasos);
 
+        $casosExecutados = 0;
         foreach ($arquivosCasos as $caminhoCaso) {
             $conteudo = (string) file_get_contents($caminhoCaso);
             $dados = json_decode($conteudo, true);
@@ -77,7 +87,13 @@ final class DynamicSkillEvalRunner
                 continue;
             }
 
+            $casosExecutados++;
             $this->executarCaso($dados, $opcoes);
+        }
+
+        if ($opcoes['case_filter'] !== null && $casosExecutados === 0) {
+            echo "❌ Erro: Nenhum caso de teste encontrado com o ID '{$opcoes['case_filter']}'.\n\n";
+            return 1;
         }
 
         $total = $this->passou + $this->falhou;
