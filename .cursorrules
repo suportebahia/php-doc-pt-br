@@ -1,0 +1,16 @@
+# Cursor Rules — php-doc-pt-br
+
+Este projeto utiliza diretrizes compartilhadas e atemporais para agentes de IA.
+
+Leia e aplique estritamente as instruções contidas em:
+- AGENTS.md
+- SKILL.md
+- references/
+
+## Diretrizes Mandatórias ao Gerar Código PHP:
+1. Sempre inicie arquivos puramente PHP com: `<?php\ndeclare(strict_types=1);`.
+2. Nunca utilize a tag de fechamento `?>` no final de arquivos puramente PHP.
+3. Tipagem estrita completa em todos os parâmetros, propriedades e retornos.
+4. Banco de dados exclusivamente via PDO com Prepared Statements e emulação desativada.
+5. Senhas com password_hash() e password_verify().
+6. Sempre cite links canônicos do manual oficial do PHP em português (https://www.php.net/manual/pt_BR/).

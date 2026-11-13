@@ -35,6 +35,12 @@ Quando esta skill está ativa, o agente responde de forma especializada aos segu
 
 ---
 
+## 📖 Para Iniciantes e Leigos
+- 🌟 **[Guia de Prompts Prontos para Iniciantes](docs/guia-de-prompts-para-iniciantes.md)**: Modelos de perguntas para copiar, colar e criar sistemas completos com auxílio da IA sem medo de errar.
+- 🔍 **[Caso Prático: Antes e Depois](examples/antes-e-depois.md)**: Veja como a skill transforma códigos inseguros e antigos em código profissional de nível sênior.
+
+---
+
 ## 📚 Base de Conhecimento e Referências
 
 O repositório inclui guias estruturados e atemporais na pasta `references/`:
@@ -63,6 +69,9 @@ Abra o repositório diretamente no Claude Code. O arquivo `CLAUDE.md` importa au
 
 ### No Antigravity IDE
 O Antigravity reconhece o arquivo `AGENTS.md` e a pasta de skills nativamente ao abrir o workspace.
+
+### No Cursor
+O Cursor lê automaticamente o arquivo `.cursorrules` na raiz do projeto.
 
 ### Como Submódulo Git em Qualquer Projeto
 Para que sua IA consulte esta skill dentro de outro projeto, adicione este repositório como submódulo:
