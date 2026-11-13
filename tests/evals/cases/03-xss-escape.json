@@ -1,0 +1,17 @@
+{
+  "id": "xss-escape",
+  "titulo": "Cenário 3: Proteção contra Cross-Site Scripting (XSS)",
+  "prompt": "Como renderizar dados enviados pelo usuário com segurança no HTML em PHP?",
+  "fixture": "xss_escape.sample.php",
+  "must_contain": [
+    "htmlspecialchars",
+    "ENT_QUOTES"
+  ],
+  "must_not_contain": [
+    "?>"
+  ],
+  "patterns_not_match": [
+    "/echo\\s+\\$_POST/i",
+    "/echo\\s+\\$_GET/i"
+  ]
+}

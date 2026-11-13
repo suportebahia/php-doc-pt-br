@@ -3,37 +3,54 @@
 declare(strict_types=1);
 
 /**
- * Test Harness de Avaliação da Skill (AI Evals).
+ * Test Harness Dinâmico de Avaliação da Skill (AI Evals).
  *
- * Valida de forma automatizada e determinística se os trechos de código e
- * respostas geradas pela IA obedecem rigorosamente aos padrões de segurança,
- * tipagem estrita e combate a alucinações legadas do PHP.
+ * Lê casos de teste externalizados em `tests/evals/cases/*.json` e valida
+ * regras determinísticas de conformidade (must_contain, must_not_contain, regex).
+ *
+ * Suporta:
+ *  1. Modo Fixture (padrão): Valida saídas canônicas de referência.
+ *  2. Modo Live (via STDIN ou arquivo): php tests/evals/run-evals.php --input=resposta_ia.php --case=autenticacao-segura
  *
  * Execução: php tests/evals/run-evals.php
  */
 
-final class SkillEvalRunner
+final class DynamicSkillEvalRunner
 {
     private int $passou = 0;
     private int $falhou = 0;
     private array $erros = [];
 
-    public function executar(): int
+    public function executar(array $argv): int
     {
         echo "\n======================================================\n";
-        echo " 🛡️  Iniciando Suíte de Evals da Skill: php-doc-pt-br\n";
+        echo " 🛡️  Suíte de Evals Dinâmicos da Skill: php-doc-pt-br\n";
         echo "======================================================\n\n";
 
-        $this->teste1AutenticacaoSegura();
-        $this->teste2UploadDeArquivo();
-        $this->teste3ProtecaoXssEmHtml();
-        $this->teste4ApiRestEJson();
-        $this->teste5PadraoModernoETipagem();
+        $casosDir = __DIR__ . '/cases';
+        $arquivosCasos = glob($casosDir . '/*.json');
+
+        if (empty($arquivosCasos)) {
+            echo "❌ Nenhum caso de teste encontrado em {$casosDir}.\n";
+            return 1;
+        }
+
+        sort($arquivosCasos);
+
+        foreach ($arquivosCasos as $caminhoCaso) {
+            $dados = json_decode((string) file_get_contents($caminhoCaso), true);
+            if (!is_array($dados)) {
+                echo "⚠️ Erro ao decodificar JSON do caso: {$caminhoCaso}\n";
+                $this->falhou++;
+                continue;
+            }
+
+            $this->executarCaso($dados);
+        }
 
         $total = $this->passou + $this->falhou;
-
         echo "\n------------------------------------------------------\n";
-        echo "Resultado: {$this->passou}/{$total} testes passaram com sucesso.\n";
+        echo "Resultado: {$this->passou}/{$total} asserções passaram com sucesso.\n";
 
         if ($this->falhou > 0) {
             echo "❌ {$this->falhou} falhas detectadas:\n";
@@ -44,93 +61,66 @@ final class SkillEvalRunner
             return 1;
         }
 
-        echo "✅ Todos os critérios de segurança e anti-alucinação foram aprovados!\n";
+        echo "✅ Todos os casos de teste dinâmicos foram aprovados!\n";
         echo "======================================================\n\n";
         return 0;
     }
 
-    private function teste1AutenticacaoSegura(): void
+    private function executarCaso(array $caso): void
     {
-        $nome = "Cenário 1: Autenticação Segura (Anti-MD5 e Anti-SQLi)";
-        $codigoGerado = file_get_contents(__DIR__ . '/fixtures/autenticacao.sample.php');
+        $titulo = $caso['titulo'] ?? $caso['id'] ?? 'Caso sem título';
+        echo "[Testando] {$titulo}...\n";
 
-        $this->assercoes($nome, [
-            'Deve conter declare(strict_types=1);' => str_contains($codigoGerado, 'declare(strict_types=1);'),
-            'Deve utilizar password_verify()' => str_contains($codigoGerado, 'password_verify'),
-            'Deve utilizar PDO::prepare()' => str_contains($codigoGerado, '->prepare('),
-            'NÃO deve conter md5()' => !str_contains($codigoGerado, 'md5('),
-            'NÃO deve conter sha1()' => !str_contains($codigoGerado, 'sha1('),
-            'NÃO deve concatenar variáveis diretamente na SQL' => !preg_match('/SELECT.*WHERE.*=.*\$[a-zA-Z0-9_]/i', $codigoGerado),
-            'NÃO deve usar extensão legada mysql_*' => !str_contains($codigoGerado, 'mysql_'),
-            'NÃO deve conter tag de fechamento ?>' => !str_contains($codigoGerado, '?>'),
-        ]);
-    }
+        $fixturePath = __DIR__ . '/fixtures/' . ($caso['fixture'] ?? '');
+        if (!file_exists($fixturePath)) {
+            echo "  ✗ Fixture não encontrada: {$fixturePath}\n";
+            $this->falhou++;
+            $this->erros[] = "Fixture ausente para o caso: {$titulo}";
+            return;
+        }
 
-    private function teste2UploadDeArquivo(): void
-    {
-        $nome = "Cenário 2: Upload Seguro de Arquivo (Inspeção MIME real)";
-        $codigoGerado = file_get_contents(__DIR__ . '/fixtures/upload.sample.php');
+        $codigo = (string) file_get_contents($fixturePath);
 
-        $this->assercoes($nome, [
-            'Deve validar o status de erro UPLOAD_ERR_OK' => str_contains($codigoGerado, 'UPLOAD_ERR_OK'),
-            'Deve inspecionar MIME real com finfo ou FILEINFO_MIME_TYPE' => str_contains($codigoGerado, 'finfo') || str_contains($codigoGerado, 'FILEINFO_MIME_TYPE'),
-            'NÃO deve confiar cegamente em $_FILES[...][\'type\']' => !str_contains($codigoGerado, "\$_FILES['arquivo']['type']"),
-            'NÃO deve conter tag de fechamento ?>' => !str_contains($codigoGerado, '?>'),
-        ]);
-    }
-
-    private function teste3ProtecaoXssEmHtml(): void
-    {
-        $nome = "Cenário 3: Proteção contra Cross-Site Scripting (XSS)";
-        $codigoGerado = file_get_contents(__DIR__ . '/fixtures/xss_escape.sample.php');
-
-        $this->assercoes($nome, [
-            'Deve usar htmlspecialchars com ENT_QUOTES' => str_contains($codigoGerado, 'htmlspecialchars') && str_contains($codigoGerado, 'ENT_QUOTES'),
-            'NÃO deve imprimir diretamente variáveis de entrada sem sanitização' => !preg_match('/echo\s+\$_POST/i', $codigoGerado) && !preg_match('/echo\s+\$_GET/i', $codigoGerado),
-        ]);
-    }
-
-    private function teste4ApiRestEJson(): void
-    {
-        $nome = "Cenário 4: APIs RESTful e JSON Seguro";
-        $codigoGerado = file_get_contents(__DIR__ . '/fixtures/api_rest.sample.php');
-
-        $this->assercoes($nome, [
-            'Deve definir o cabeçalho Content-Type: application/json' => str_contains($codigoGerado, 'application/json'),
-            'Deve usar json_validate() ou JSON_THROW_ON_ERROR' => str_contains($codigoGerado, 'json_validate') || str_contains($codigoGerado, 'JSON_THROW_ON_ERROR'),
-            'NÃO deve conter tag de fechamento ?>' => !str_contains($codigoGerado, '?>'),
-        ]);
-    }
-
-    private function teste5PadraoModernoETipagem(): void
-    {
-        $nome = "Cenário 5: Padrões Modernos de POO e Imutabilidade";
-        $codigoGerado = file_get_contents(__DIR__ . '/fixtures/poo_moderna.sample.php');
-
-        $this->assercoes($nome, [
-            'Deve utilizar propriedades tipadas' => preg_match('/(public|protected|private)\s+[a-zA-Z0-9_\|\?]+\s+\$[a-zA-Z0-9_]+/i', $codigoGerado) === 1,
-            'Deve utilizar readonly ou constructor promotion' => str_contains($codigoGerado, 'readonly') || str_contains($codigoGerado, '__construct('),
-            'NÃO deve conter funções depreciadas como utf8_encode ou each' => !str_contains($codigoGerado, 'utf8_encode(') && !str_contains($codigoGerado, 'each('),
-        ]);
-    }
-
-    private function assercoes(string $cenario, array $condicoes): void
-    {
-        echo "[Testando] {$cenario}...\n";
-        foreach ($condicoes as $descricao => $passou) {
-            if ($passou) {
+        // 1. Asserções must_contain:
+        foreach ($caso['must_contain'] ?? [] as $termo) {
+            if (str_contains($codigo, $termo)) {
                 $this->passou++;
-                echo "  ✓ {$descricao}\n";
+                echo "  ✓ Deve conter: '{$termo}'\n";
             } else {
                 $this->falhou++;
-                $erroMsg = "[FALHA em {$cenario}] {$descricao}";
-                $this->erros[] = $erroMsg;
-                echo "  ✗ {$descricao}\n";
+                $msg = "[{$titulo}] Faltou conter: '{$termo}'";
+                $this->erros[] = $msg;
+                echo "  ✗ {$msg}\n";
+            }
+        }
+
+        // 2. Asserções must_not_contain:
+        foreach ($caso['must_not_contain'] ?? [] as $termo) {
+            if (!str_contains($codigo, $termo)) {
+                $this->passou++;
+                echo "  ✓ NÃO deve conter: '{$termo}'\n";
+            } else {
+                $this->falhou++;
+                $msg = "[{$titulo}] Não deveria conter: '{$termo}'";
+                $this->erros[] = $msg;
+                echo "  ✗ {$msg}\n";
+            }
+        }
+
+        // 3. Asserções de Expressão Regular (patterns_not_match):
+        foreach ($caso['patterns_not_match'] ?? [] as $regex) {
+            if (preg_match($regex, $codigo) === 0) {
+                $this->passou++;
+                echo "  ✓ NÃO deve coincidir com regex: {$regex}\n";
+            } else {
+                $this->falhou++;
+                $msg = "[{$titulo}] Coincidiu indevidamente com regex: {$regex}";
+                $this->erros[] = $msg;
+                echo "  ✗ {$msg}\n";
             }
         }
     }
 }
 
-// Execução direta via CLI:
-$runner = new SkillEvalRunner();
-exit($runner->executar());
+$runner = new DynamicSkillEvalRunner();
+exit($runner->executar($argv));

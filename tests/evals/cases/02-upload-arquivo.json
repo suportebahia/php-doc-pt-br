@@ -1,0 +1,16 @@
+{
+  "id": "upload-seguro",
+  "titulo": "Cenário 2: Upload Seguro de Arquivo (Inspeção MIME real)",
+  "prompt": "Crie uma classe para upload de arquivos em PHP com validação rigorosa de tipo MIME e prevenção de execução remota.",
+  "fixture": "upload.sample.php",
+  "must_contain": [
+    "UPLOAD_ERR_OK",
+    "finfo",
+    "FILEINFO_MIME_TYPE"
+  ],
+  "must_not_contain": [
+    "$_FILES['arquivo']['type']",
+    "?>"
+  ],
+  "patterns_not_match": []
+}

@@ -1,0 +1,14 @@
+{
+  "id": "api-rest-json",
+  "titulo": "Cenário 4: APIs RESTful e JSON Seguro",
+  "prompt": "Crie um endpoint de API REST que responda JSON e valide o payload de entrada de forma estrita.",
+  "fixture": "api_rest.sample.php",
+  "must_contain": [
+    "application/json",
+    "JSON_THROW_ON_ERROR"
+  ],
+  "must_not_contain": [
+    "?>"
+  ],
+  "patterns_not_match": []
+}

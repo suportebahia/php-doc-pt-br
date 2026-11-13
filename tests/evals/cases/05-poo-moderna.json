@@ -1,0 +1,17 @@
+{
+  "id": "poo-moderna",
+  "titulo": "Cenário 5: Padrões Modernos de POO e Imutabilidade",
+  "prompt": "Crie um Value Object ou Modelo em PHP moderno utilizando recursos do PHP 8.2+.",
+  "fixture": "poo_moderna.sample.php",
+  "must_contain": [
+    "declare(strict_types=1);",
+    "readonly class",
+    "__construct("
+  ],
+  "must_not_contain": [
+    "utf8_encode(",
+    "each(",
+    "?>"
+  ],
+  "patterns_not_match": []
+}
