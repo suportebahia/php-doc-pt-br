@@ -1,71 +1,47 @@
-name: CI - Integridade e Evals da Skill
+name: Verificações
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   validate:
-    name: Validar Estrutura, Links e Evals
+    name: Validar com PHP ${{ matrix.php-version }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.2', '8.3', '8.4', '8.5']
 
     steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Configurar PHP 8.3
-        uses: shivammathur/setup-php@v2
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
-          php-version: '8.3'
-          extensions: mbstring, curl, fileinfo
+          php-version: ${{ matrix.php-version }}
+          coverage: none
 
-      - name: Validar Existência dos Arquivos Obrigatórios de Governança
+      - name: Verificar sintaxe PHP
         run: |
-          echo "Verificando arquivos estruturais e de governança..."
-          test -f "SKILL.md" || exit 1
-          test -f "AGENTS.md" || exit 1
-          test -f "CLAUDE.md" || exit 1
-          test -f ".cursorrules" || exit 1
-          test -f "README.md" || exit 1
-          test -f "LICENSE" || exit 1
-          test -f "CONTRIBUTING.md" || exit 1
-          test -f "SECURITY.md" || exit 1
-          test -f "CODE_OF_CONDUCT.md" || exit 1
-          test -f "tests/evals/README.md" || exit 1
-          echo "Todos os arquivos centrais e de governança foram verificados!"
+          set -euo pipefail
+          php -l tests/evals/run-evals.php
+          php -l tests/evals/test-runner.php
+          php -l tests/evals/validate-links.php
+          find tests/evals/fixtures -type f -name '*.php' -print0 | xargs -0 -r -n1 php -l
 
-      - name: Validar Schema dos Casos de Teste (JSON)
+      - name: Validar casos e executar verificações estáticas
         run: |
           php tests/evals/run-evals.php --validate-only
-
-      - name: Executar Test Harness de Evals (Fixtures Canônicas)
-        run: |
           php tests/evals/run-evals.php
+          php tests/evals/test-runner.php
 
-      - name: Validar Links Canônicos para o Manual Oficial (PHP.net)
-        run: |
-          php -r '
-            $arquivos = glob("references/*.md");
-            $erros = 0;
-            foreach ($arquivos as $arq) {
-                $conteudo = file_get_contents($arq);
-                preg_match_all("/https:\/\/www\.php\.net\/manual\/pt_BR\/[^\)\s\"]+/", $conteudo, $matches);
-                foreach ($matches[0] as $link) {
-                    $link = rtrim($link, '.,;:!?');
-                    if (str_contains($link, "example.com")) continue;
-                    // Validação robusta com filter_var e prefixo canônico:
-                    if (!filter_var($link, FILTER_VALIDATE_URL) || !str_starts_with($link, "https://www.php.net/manual/pt_BR/")) {
-                        echo "Alerta de link inválido em $arq: $link\n";
-                        $erros++;
-                    }
-                }
-            }
-            if ($erros > 0) {
-                echo "Total de links com problemas: $erros\n";
-                exit(1);
-            }
-            echo "Todos os links canônicos foram validados com sucesso!\n";
-            exit(0);
-          '
+      - name: Validar formato e domínio dos links
+        run: php tests/evals/validate-links.php

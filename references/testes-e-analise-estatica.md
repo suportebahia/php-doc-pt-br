@@ -1,144 +1,54 @@
-# Testes Automatizados e Análise Estática no PHP
+# Testes automatizados e análise estática em PHP
 
-Padrão de engenharia de software para garantia de qualidade, prevenção de regressões e validação estática de tipos em projetos PHP.
+Testes e análise estática ajudam a encontrar defeitos, mas cobrem apenas os cenários, regras e configurações incluídos. Não provam que uma aplicação inteira está correta ou segura. Escolha ferramentas e versões compatíveis com o PHP e o projeto.
 
----
+## Análise estática
 
-## 1. Por que Análise Estática e Testes?
-No PHP moderno, a garantia de que o sistema funciona corretamente antes de ir para produção é dividida em dois níveis:
+Ferramentas como PHPStan analisam o código sem executá-lo e podem apontar problemas de tipos, chamadas e fluxo de dados conforme a configuração e os stubs disponíveis. O resultado depende do nível, das extensões e das informações fornecidas. Uma análise sem erros não demonstra ausência de bugs.
 
-1. **Análise Estática (ex: PHPStan):** Examina o código-fonte **sem executá-lo**, detectando incompatibilidades de tipos, chamadas a métodos inexistentes, variáveis não inicializadas e código morto.
-2. **Testes Automatizados (ex: PHPUnit):** **Executam** cenários reais de uso, validando se as regras de negócio produzem os resultados esperados diante de entradas válidas e inválidas.
+Instale uma versão compatível com o PHP do projeto e siga a documentação correspondente:
 
----
-
-## 2. Análise Estática com PHPStan
-
-### Instalação:
 ```bash
 composer require --dev phpstan/phpstan
-```
-
-### Arquivo de Configuração (`phpstan.neon` na raiz do projeto):
-```neon
-parameters:
-    level: 8          # Níveis de 0 (básico) a 9 (ultra-estrito). Nível 8 é o padrão ouro.
-    paths:
-        - src
-        - tests
-    checkGenericClassInNonGenericObjectType: false
-```
-
-### Execução:
-```bash
 vendor/bin/phpstan analyse
 ```
-Se o seu código contiver um método que pode retornar `null`, mas você tentar chamá-lo sem verificar antes, o PHPStan bloqueará e apontará a linha exata antes de qualquer deploy.
 
----
+Configure os caminhos e o nível de análise de forma incremental. Um nível mais alto pode revelar mais inconsistências, mas não é automaticamente o melhor ponto de partida para todos os projetos.
 
-## 3. Testes Automatizados com PHPUnit
+## Testes com PHPUnit
 
-### Instalação:
+PHPUnit executa os testes escritos pelo projeto. Selecione uma versão compatível com a versão mínima de PHP e com as dependências; consulte a documentação da mesma versão instalada.
+
 ```bash
 composer require --dev phpunit/phpunit
+vendor/bin/phpunit
 ```
 
-### Arquivo de Configuração (`phpunit.xml`):
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         colors="true">
-    <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
-    </testsuites>
-</phpunit>
-```
+Um arquivo `phpunit.xml` básico pode definir o autoloader e a pasta de testes. As opções e o esquema XML variam entre versões do PHPUnit; use o exemplo oficial compatível com a versão selecionada.
 
----
+Um teste unitário pequeno:
 
-## 4. Estrutura de um Teste Unitário Limpo
-
-### A Classe a ser Testada (`src/Service/CalculadoraDesconto.php`):
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\Service;
-
-class CalculadoraDesconto
-{
-    public function calcular(float $valorTotal, float $porcentagem): float
-    {
-        if ($valorTotal < 0 || $porcentagem < 0 || $porcentagem > 100) {
-            throw new \InvalidArgumentException('Valores de entrada inválidos para cálculo de desconto.');
-        }
-
-        return $valorTotal - ($valorTotal * ($porcentagem / 100));
-    }
-}
-```
-
-### A Classe de Teste (`tests/Unit/CalculadoraDescontoTest.php`):
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Tests\Unit;
-
-use App\Service\CalculadoraDesconto;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class CalculadoraDescontoTest extends TestCase
 {
-    private CalculadoraDesconto $calculadora;
-
-    protected function setUp(): void
+    public function testCalculaDesconto(): void
     {
-        parent::setUp();
-        $this->calculadora = new CalculadoraDesconto();
-    }
-
-    public function testDeveCalcularDescontoComSucesso(): void
-    {
-        // Cenário: R$ 100,00 com 15% de desconto deve resultar em R$ 85,00
-        $resultado = $this->calculadora->calcular(100.0, 15.0);
-
-        $this->assertSame(85.0, $resultado);
-    }
-
-    public function testDeveLancarExcecaoQuandoPorcentagemMaiorQueCem(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Valores de entrada inválidos');
-
-        $this->calculadora->calcular(100.0, 110.0);
+        $resultado = 100.0 - (100.0 * 15.0 / 100.0);
+        self::assertSame(85.0, $resultado);
     }
 }
 ```
 
----
+Este caso verifica apenas essa operação e entrada. Para requisitos financeiros, inclua escala decimal, arredondamento e moeda conforme o domínio, em vez de presumir que `float` é adequado.
 
-## 5. Principais Asserções do PHPUnit
+## Usar os resultados
 
-| Asserção | O que Valida |
-| :--- | :--- |
-| `$this->assertSame($esperado, $atual)` | Valida valor e tipo estrito (equivalente a `===`). |
-| `$this->assertTrue($condicao)` | Valida se a condição é estritamente `true`. |
-| `$this->assertFalse($condicao)` | Valida se a condição é estritamente `false`. |
-| `$this->assertCount($quantidade, $array)` | Valida se o array contém o número exato de elementos. |
-| `$this->assertNull($valor)` | Valida se a variável é estritamente `null`. |
-| `$this->expectException(Classe::class)` | Valida se o método lança a exceção esperada. |
+Ligue os comandos à integração contínua se a equipe quiser que falhas bloqueiem o fluxo de revisão ou publicação. Um teste que não é executado pelo CI não bloqueia deploy por si só. Revise também se a suíte cobre cenários negativos, permissões e limites relevantes; os próprios testes podem estar incompletos.
 
-### Executando os Testes:
-```bash
-vendor/bin/phpunit
-```
-- Site oficial do PHPUnit: [phpunit.de](https://phpunit.de/)
+- Documentação: [PHPStan](https://phpstan.org/user-guide/getting-started), [PHPUnit](https://docs.phpunit.de/)

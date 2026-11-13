@@ -1,56 +1,24 @@
-# Guia de Contribuição — php-doc-pt-br
+# Como contribuir
 
-Agradecemos o seu interesse em contribuir com o **`php-doc-pt-br`**! Este projeto tem como missão elevar a qualidade, segurança e modernidade do código PHP gerado por agentes de IA e adotado por desenvolvedores da comunidade lusófona.
+Contribuições que melhorem clareza, correção técnica e compatibilidade são bem-vindas. Antes de abrir uma alteração, confira se o conteúdo não duplica uma referência existente e se as afirmações dependentes de versão apontam para documentação primária.
 
----
+## Alterações em guias e exemplos
 
-## 🎯 O Contrato de Contribuição (Leia o `AGENTS.md`)
-Antes de propor alterações ou adicionar novas referências, você **deve** ler o arquivo [AGENTS.md](AGENTS.md). 
+Inclua o contexto e a versão mínima do PHP, framework ou dependências quando afetarem o exemplo. Não apresente preferências como regras universais nem prometa que um trecho é “blindado”, infalível ou pronto para produção sem contexto. Preserve os exemplos em português brasileiro e explique as limitações relevantes.
 
-Toda contribuição deve respeitar o **Filtro dos 6 Meses**:
-1. Esta afirmação continuará verdadeira daqui a 6 meses?
-2. Faz sentido para quem nunca viu este repositório antes?
-3. O conteúdo é estritamente atemporal (sem prazos curtos ou contextos pessoais)?
-4. Há link direto para a documentação canônica em `https://www.php.net/manual/pt_BR/`?
+## Alterações nos testes
 
----
+Os casos em `tests/evals/` são verificações textuais simples. Ao acrescentar um caso, descreva o que o padrão efetivamente verifica; não o trate como prova semântica de segurança. Não execute fixtures nem códigos gerados durante o CI.
 
-## 🛠️ Como Contribuir
+Execute antes de submeter:
 
-### 1. Reportando Problemas ou Alucinações de IA
-Se você notou que a IA gerou código inseguro, com funções depreciadas ou com alucinações ao usar esta skill:
-- Abra uma **Issue** no GitHub.
-- Descreva o prompt exato que você usou, a resposta que a IA deu e o que a documentação oficial diz a respeito.
+```bash
+php tests/evals/run-evals.php --validate-only
+php tests/evals/run-evals.php
+php tests/evals/test-runner.php
+php tests/evals/validate-links.php
+```
 
-### 2. Propondo Novos Guias em `references/`
-- Crie guias curtos, canônicos e focados em problemas reais.
-- Mantenha a estrutura padrão:
-  1. Explicação técnica concisa.
-  2. Exemplo de código no padrão moderno (PHP 8.2+, `declare(strict_types=1);`).
-  3. Seção final de **Fonte** com o link direto para `https://www.php.net/manual/pt_BR/...`.
+## Pull requests
 
-### 3. Adicionando Novos Testes no Test Harness (`tests/evals/`)
-Adoraríamos que a comunidade ampliasse a suíte de testes automáticos da skill:
-1. Abra `tests/evals/run-evals.php`.
-2. Adicione um novo método de teste (ex: `testeProtecaoCsrf()`).
-3. Adicione o arquivo correspondente em `tests/evals/fixtures/`.
-4. Execute `php tests/evals/run-evals.php` no seu terminal e certifique-se de que todos os testes passaram.
-
----
-
-## 🚀 Fluxo de Pull Request (PR)
-
-1. Faça um Fork do repositório.
-2. Crie uma branch para sua modificação:
-   ```bash
-   git checkout -b feat/nova-referencia-seguranca
-   ```
-3. Execute o Test Harness para validar a integridade:
-   ```bash
-   php tests/evals/run-evals.php
-   ```
-4. Faça commit seguindo o padrão de commits semânticos:
-   - `feat:` para novos guias ou testes.
-   - `fix:` para correção de links quebrados ou imprecisões no texto.
-   - `docs:` para melhorias nas explicações educacionais.
-5. Abra o Pull Request detalhando as melhorias propostas.
+Descreva o problema, a solução, as fontes consultadas e os comandos de teste executados. Se uma alteração não puder ser validada localmente, indique isso. Não inclua credenciais, dados pessoais ou segredos.

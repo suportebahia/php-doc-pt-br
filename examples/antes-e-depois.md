@@ -1,130 +1,53 @@
-# Caso Prático: Antes e Depois da Skill
+# Exemplo didático: autenticação e acesso ao banco
 
-Este comparativo ilustra a diferença drástica entre o código gerado por uma IA sem contexto (influenciada por tutoriais legados da internet) versus o código gerado sob as diretrizes da skill **`php-doc-pt-br`**.
+O primeiro trecho contém padrões que não devem ser reutilizados. O segundo mostra algumas correções para PHP 8.2+, mas é deliberadamente parcial: não é uma implementação pronta para produção nem uma auditoria de segurança.
 
----
-
-## O Cenário
-**Pedido do Usuário:** *"Crie uma função em PHP para autenticar um usuário no banco de dados com e-mail e senha e iniciar a sessão."*
-
----
-
-### ❌ ANTES (Como IAs sem a skill frequentemente respondem)
-*Influenciado pelo grande volume de tutoriais antigos (PHP 5/7) na internet:*
+## Trecho com problemas
 
 ```php
-<?php
-// Conexão procedural sem opções de segurança
-$conn = mysqli_connect("localhost", "root", "", "meu_banco");
-
-// Entrada direta do usuário sem sanitização ou tipagem
 $email = $_POST['email'];
-$senha = md5($_POST['senha']); // GRAVE: MD5 quebrado há anos!
-
-// VULNERABILIDADE CRÍTICA DE SQL INJECTION: Concatenação direta
+$senha = md5($_POST['senha']);
 $sql = "SELECT * FROM usuarios WHERE email = '$email' AND senha = '$senha'";
-$result = mysqli_query($conn, $sql);
-
-if (mysqli_num_rows($result) > 0) {
-    session_start(); // Sessão iniciada sem flags de segurança de cookies
-    $user = mysqli_fetch_assoc($result);
-    $_SESSION['user_id'] = $user['id'];
-    echo "Login efetuado!";
-} else {
-    echo "E-mail ou senha incorretos!";
-}
-?>
+$resultado = mysqli_query($conexao, $sql);
 ```
 
-#### Problemas Críticos do "Antes":
-1. **SQL Injection:** Um invasor pode enviar `' OR '1'='1` e logar como qualquer usuário.
-2. **Senha com `md5`:** Senhas podem ser revertidas em segundos usando *rainbow tables*.
-3. **Sequestro de Sessão:** Cookies de sessão sem `httponly` e `samesite`, vulneráveis a roubo via XSS.
-4. **Sem Tipagem Estrita:** Não há `declare(strict_types=1);` nem tipagem em funções.
-5. **Tag de fechamento `?>`:** Gera risco de envio prematuro de espaços em branco antes dos headers HTTP.
+O valor de entrada é incorporado à instrução SQL, o que pode permitir injeção SQL conforme o contexto. MD5 não é apropriado para armazenar senhas, e `$_POST` deve ser validado antes de ser usado. `mysqli` por si só não é inseguro: a API oferece consultas preparadas, mas o trecho acima não as usa.
 
----
-
-### ✅ DEPOIS (Com a Skill `php-doc-pt-br` Ativa)
-*Código moderno (PHP 8.2+), tipado, com PDO seguro, hash nativo e didático:*
+## Exemplo parcial com parâmetros e API de senha
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\Auth;
-
-use PDO;
-use RuntimeException;
-
-final class ServicoAutenticacao
+function autenticar(PDO $pdo, string $email, string $senha): ?array
 {
-    public function __construct(
-        private readonly PDO $pdo
-    ) {}
+    $stmt = $pdo->prepare(
+        'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = :email LIMIT 1'
+    );
+    $stmt->execute(['email' => $email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    /**
-     * Autentica o usuário com credenciais e inicia a sessão segura.
-     *
-     * @throws RuntimeException Em caso de credenciais inválidas.
-     */
-    public function autenticar(string $email, string $senha): array
-    {
-        // 1. Prepared statement blindado contra SQL Injection:
-        $stmt = $this->pdo->prepare('
-            SELECT id, nome, email, senha_hash, status 
-            FROM usuarios 
-            WHERE email = :email
-            LIMIT 1
-        ');
-        $stmt->execute([':email' => $email]);
-        $usuario = $stmt->fetch();
-
-        // 2. Verificação segura com tempo constante (Timing-safe):
-        if (!$usuario || !password_verify($senha, $usuario['senha_hash'])) {
-            throw new RuntimeException('E-mail ou senha incorretos.');
-        }
-
-        if ($usuario['status'] !== 'ativo') {
-            throw new RuntimeException('Esta conta de usuário está desativada.');
-        }
-
-        // 3. Inicialização e regeneração segura de sessão:
-        $this->iniciarSessaoSegura((int) $usuario['id']);
-
-        return [
-            'id'    => (int) $usuario['id'],
-            'nome'  => $usuario['nome'],
-            'email' => $usuario['email'],
-        ];
+    if (!is_array($usuario) || !password_verify($senha, $usuario['senha_hash'])) {
+        return null;
     }
 
-    private function iniciarSessaoSegura(int $usuarioId): void
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_set_cookie_params([
-                'lifetime' => 0,
-                'path'     => '/',
-                'domain'   => '',
-                'secure'   => true,     // Transmitir apenas em conexões HTTPS
-                'httponly' => true,     // Bloqueia leitura via JavaScript (mitiga roubo por XSS)
-                'samesite' => 'Strict', // Proteção nativa contra CSRF
-            ]);
-            session_start();
-        }
-
-        // Regenera o ID da sessão para evitar Session Fixation:
-        session_regenerate_id(true);
-        $_SESSION['usuario_id'] = $usuarioId;
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
     }
+    session_regenerate_id(true);
+
+    return [
+        'id' => (int) $usuario['id'],
+        'nome' => (string) $usuario['nome'],
+        'email' => (string) $usuario['email'],
+    ];
 }
 ```
 
----
+Este exemplo ilustra parâmetros SQL e verificação de hash com a API nativa. A aplicação ainda precisa integrar a conexão e as opções de cookie de sessão, verificar autorização em cada operação, aplicar limites contra tentativas automatizadas, tratar erros e testar os seus requisitos. A configuração de cookies e CSRF depende do fluxo e do ambiente; não existe uma combinação única adequada a todos os sites.
 
-### 📖 Fontes no Manual Oficial Consultadas:
-- [Segurança de Bancos de Dados com PDO](https://www.php.net/manual/pt_BR/security.database.php)
-- [Função password_verify](https://www.php.net/manual/pt_BR/function.password-verify.php)
-- [Segurança da Sessão e Cookies](https://www.php.net/manual/pt_BR/security.sessions.php)
-- [Tipagem de Declaração no PHP](https://www.php.net/manual/pt_BR/language.types.declarations.php)
+- [Prepared statements do PDO](https://www.php.net/manual/pt_BR/pdo.prepared-statements.php)
+- [Funções de senha](https://www.php.net/manual/pt_BR/book.password.php)
+- [Segurança de sessões](https://www.php.net/manual/pt_BR/security.sessions.php)
+- [Declarações de tipo](https://www.php.net/manual/pt_BR/language.types.declarations.php)

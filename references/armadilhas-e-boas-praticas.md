@@ -1,93 +1,54 @@
-# Armadilhas Frequentes e Boas Práticas no PHP
+# Armadilhas e boas práticas em PHP
 
-Guia de prevenção contra erros lógicos clássicos e comportamentos contra-intuitivos documentados no manual do PHP.
+Exemplos de comportamentos que merecem atenção. Escolha a operação conforme os tipos e as regras de domínio do projeto; uma recomendação geral não substitui a definição do contrato.
 
----
+## Comparação estrita e comparação frouxa
 
-## 1. Comparação Estrita (`===`) vs Comparação Frouxa (`==`)
-A comparação frouxa (`==`) realiza coerção de tipos silenciosa, o que frequentemente causa vulnerabilidades de autenticação e lógica:
+`==` pode converter tipos antes de comparar; `===` também exige que os tipos coincidam. Para identificadores, tokens e valores cujo tipo faz parte do contrato, a comparação estrita costuma ser a escolha mais clara. Não a aplique cegamente a números de tipos diferentes ou a valores de ponto flutuante sem definir a regra pretendida.
 
 ```php
-// Armadilha clássica:
-0 == 'texto'      // No PHP 7 era true! No PHP 8 é false, mas ainda perigoso
-'0e123' == '0e456' // true (ambos interpretados como notação científica 0 * 10^x = 0)
+$tokenRecebido = 'abc123';
+$tokenEsperado = 'abc123';
 
-// Padrão obrigatório:
-// SEMPRE use comparação estrita (=== e !==):
-if ($senhaHash === $hashEsperado) { ... }
+if ($tokenRecebido === $tokenEsperado) {
+    // Os dois valores e tipos coincidem.
+}
 ```
-- Fonte: [Operadores de Comparação](https://www.php.net/manual/pt_BR/language.operators.comparison.php)
 
----
+- Fonte: [Operadores de comparação](https://www.php.net/manual/pt_BR/language.operators.comparison.php)
 
-## 2. A Pegadinha do `empty()` com a String `"0"`
-A função nativa `empty()` considera valores falsos como vazios: `""`, `0`, `0.0`, `null`, `false`, `[]` e **a string `"0"`**.
+## `empty()` e a string `"0"`
 
-- Se um usuário preencher um campo de formulário com o número zero (`"0"`), `empty("0")` retornará `true`!
-- **Como resolver:**
-  ```php
-  // Inadequado:
-  if (empty($_POST['quantidade'])) { ... } // Rejeitará o valor legítimo "0"
+`empty()` considera vazios valores como `0`, `false`, `null`, `''`, `[]` e a string `'0'`. Se `'0'` for uma entrada válida, verifique presença e conteúdo de acordo com o formato esperado:
 
-  // Recomendado:
-  if (!isset($_POST['quantidade']) || $_POST['quantidade'] === '') {
-      // Realmente vazio
-  }
-  ```
+```php
+if (!isset($_POST['quantidade']) || $_POST['quantidade'] === '') {
+    // O campo está ausente ou vazio; valide o tipo/formato separadamente.
+}
+```
+
 - Fonte: [empty](https://www.php.net/manual/pt_BR/function.empty.php)
 
----
+## Posição encontrada igual a zero
 
-## 3. Retorno Falso em Funções de Busca (`strpos` vs `str_contains`)
-Funções como `strpos()` retornam a posição do caractere (índice `0` para o início da string) ou `false` se não encontrar:
-
-```php
-$texto = "PHP moderno";
-
-// Inadequado:
-if (strpos($texto, "PHP") == false) {
-    // ERRO! strpos retorna 0, e 0 == false avalia como true!
-}
-
-// Padrão PHP 8+ recomendado:
-if (str_contains($texto, "PHP")) {
-    // Retorna booleano puro (true/false) de forma inequívoca
-}
-
-// Se precisar da posição numérica:
-if (strpos($texto, "PHP") !== false) {
-    // Encontrado corretamente
-}
-```
-- Fonte: [str_contains](https://www.php.net/manual/pt_BR/function.str-contains.php) e [strpos](https://www.php.net/manual/pt_BR/function.strpos.php)
-
----
-
-## 4. `isset()` vs `array_key_exists()`
-- `isset($array['chave'])`: Retorna `false` se a chave não existir **ou** se o valor for explicitamente `null`.
-- `array_key_exists('chave', $array)`: Retorna `true` se a chave existir no array, mesmo que seu valor armazenado seja `null`.
+`strpos()` retorna um índice, que pode ser `0`, ou `false` quando não encontra. Compare explicitamente com `false` se precisar do índice. `str_contains()` é opção a partir do PHP 8.0 quando só interessa saber se existe ocorrência.
 
 ```php
-$config = ['usuario' => null];
-
-isset($config['usuario']);            // false
-array_key_exists('usuario', $config); // true
+if (strpos($texto, 'PHP') !== false) {
+    // Encontrado, inclusive quando está no início.
+}
 ```
-- Fonte: [array_key_exists](https://www.php.net/manual/pt_BR/function.array-key-exists.php) e [isset](https://www.php.net/manual/pt_BR/function.isset.php)
 
----
+- Fontes: [strpos](https://www.php.net/manual/pt_BR/function.strpos.php), [str_contains](https://www.php.net/manual/pt_BR/function.str-contains.php)
 
-## 5. Precisão de Ponto Flutuante (`float`)
-Valores numéricos de ponto flutuante têm imprecisão inerente de representação binária IEEE 754. **Nunca** use `float` para cálculos financeiros ou de moeda:
+## `isset()` e `array_key_exists()`
 
-```php
-// Inadequado:
-$a = 0.1 + 0.2; // 0.30000000000000004
-if ($a == 0.3) { ... } // Pode falhar!
+`isset($array['chave'])` retorna `false` quando a chave está ausente ou o valor é `null`. `array_key_exists('chave', $array)` distingue chave ausente de chave presente com valor `null`.
 
-// Padrão recomendado:
-// 1. Armazene valores monetários em centavos (inteiros: 100 para R$ 1,00)
-// 2. Ou utilize a extensão nativa BCMath para aritmética de precisão arbitrária:
-$resultado = bcadd('0.1', '0.2', 2); // '0.30'
-```
-- Fonte: [Números de Ponto Flutuante](https://www.php.net/manual/pt_BR/language.types.float.php) e [BCMath](https://www.php.net/manual/pt_BR/book.bc.php)
+- Fontes: [isset](https://www.php.net/manual/pt_BR/function.isset.php), [array_key_exists](https://www.php.net/manual/pt_BR/function.array-key-exists.php)
+
+## Valores monetários e `float`
+
+Valores de ponto flutuante são aproximações binárias. Para dinheiro, evite depender de igualdade exata ou somas repetidas com `float` sem uma política de arredondamento. Unidades inteiras menores, tipos decimais do banco ou aritmética decimal podem ser opções; escolha considerando moeda, escala, arredondamento, limites e ferramentas disponíveis.
+
+- Fontes: [Números de ponto flutuante](https://www.php.net/manual/pt_BR/language.types.float.php), [BCMath](https://www.php.net/manual/pt_BR/book.bc.php)

@@ -1,90 +1,52 @@
-# Padrões Oficiais de Desenvolvimento PHP
+# Padrões de desenvolvimento PHP
 
-Diretrizes obrigatórias para escrita de código PHP moderno, seguro, manutenível e fundamentado no manual oficial.
+Este guia reúne recomendações gerais. Adapte-as ao PHP mínimo, às dependências, ao framework e às convenções do projeto. Consulte as especificações PHP-FIG quando precisar de regras normativas, como PSR-12.
 
----
+## Tipagem e declaração strict_types
 
-## 1. Tipagem Estrita e Abertura de Arquivo
-- Todo arquivo com código PHP puro **deve** iniciar obrigatoriamente com a declaração de tipagem estrita na primeira linha:
-  ```php
-  <?php
+Em código novo, tipos de parâmetros, propriedades e retornos tornam os contratos mais claros e ajudam ferramentas de análise estática. Escolha `mixed`, uniões e tipos anuláveis quando representarem corretamente o domínio; não adicione tipos apenas para satisfazer uma regra mecânica.
 
-  declare(strict_types=1);
-  ```
-- **Nunca** utilize a tag de fechamento `?>` em arquivos contendo apenas código PHP. Isso previne o envio acidental de espaços em branco antes do envio de cabeçalhos HTTP.
-  - Fonte: [Sintaxe Básica - Tags PHP](https://www.php.net/manual/pt_BR/language.basic-syntax.phptags.php)
-
----
-
-## 2. Tipagem Completa de Parâmetros, Propriedades e Retornos
-O PHP moderno suporta tipagem forte em todos os níveis. Não deixe declarações sem tipo explícito.
-
-- Tipos primitivos: `int`, `float`, `string`, `bool`.
-- Tipos especiais: `void` (sem retorno), `never` (funções que encerram ou sempre lançam exceção), `mixed` (quando estritamente necessário).
-- Tipos anuláveis (*nullable*): `?string` ou `string|null`.
-- Tipos de união e interseção: `int|float`, `Traversable&Countable`.
-- Exemplo:
-  ```php
-  <?php
-
-  declare(strict_types=1);
-
-  namespace App\Service;
-
-  class Calculadora
-  {
-      public function dividir(int|float $dividendo, int|float $divisor): float
-      {
-          if ($divisor === 0) {
-              throw new \InvalidArgumentException('O divisor não pode ser zero.');
-          }
-
-          return $dividendo / $divisor;
-      }
-  }
-  ```
-- Fonte: [Tipos de Declaração](https://www.php.net/manual/pt_BR/language.types.declarations.php)
-
----
-
-## 3. Padrão de Estilo de Código (PSR-12 / PER Coding Style)
-- **Indentação:** 4 espaços (nunca tabulações).
-- **Nomenclatura:**
-  - Classes, Enums e Interfaces: `PascalCase` (ex: `GerenciadorUsuario`, `StatusPedido`).
-  - Métodos e Funções: `camelCase` (ex: `buscarPorId()`, `autenticar()`).
-  - Constantes e Casos de Enums: `UPPER_SNAKE_CASE` (ex: `LIMITE_TENTATIVAS`, `case ATIVO`).
-  - Variáveis e Propriedades: `camelCase` (ex: `$usuarioId`, `$dataCriacao`).
-- **Visibilidade Explícita:** Toda propriedade, método e constante de classe **deve** declarar explicitamente sua visibilidade (`public`, `protected`, `private`).
-  - Fonte: [Classes e Objetos - Visibilidade](https://www.php.net/manual/pt_BR/language.oop5.visibility.php)
-
----
-
-## 4. Retorno Antecipado (*Early Return*) e Código Limpo
-Evite aninhamentos profundos de condicionais (`if` dentro de `if`). Trate casos de erro, exceção ou condições de parada imediatamente e retorne cedo:
+`declare(strict_types=1);` pode ser uma boa escolha para arquivos PHP novos. O seu efeito é local ao arquivo e relaciona-se sobretudo a chamadas de funções feitas a partir desse arquivo; não transforma automaticamente toda a aplicação em um sistema de tipos estrito. Ao alterar um sistema existente, considere a compatibilidade e os testes.
 
 ```php
-// Inadequado:
-if ($usuario !== null) {
-    if ($usuario->estaAtivo()) {
-        // lógica complexa
+<?php
+
+declare(strict_types=1);
+
+function dividir(int|float $dividendo, int|float $divisor): float
+{
+    if ($divisor == 0) {
+        throw new InvalidArgumentException('O divisor não pode ser zero.');
     }
-}
 
-// Recomendado:
-if ($usuario === null || !$usuario->estaAtivo()) {
-    return false;
+    return $dividendo / $divisor;
 }
-
-// fluxo principal limpo
-return true;
 ```
 
----
+Use comparação estrita (`===`) sempre que a comparação pretendida for também de tipo. Para valores numéricos aceitando `int` ou `float`, defina a regra de domínio e compare os valores de forma apropriada; não copie `=== 0` para todos os casos sem considerar os tipos recebidos.
 
-## 5. Tratamento Robusto de Erros e Exceções
-- Utilize o modelo nativo de exceções (`Throwable`, `Exception`, `RuntimeException`, `InvalidArgumentException`).
-- Nunca silencie erros com o operador `@` em tempo de execução.
-- Em ambientes de produção:
-  - `display_errors = Off` (não expor trace para o usuário final).
-  - `log_errors = On` (gravar erros em log seguro).
-- Fonte: [Tratamento de Erros e Exceções](https://www.php.net/manual/pt_BR/language.error-handling.php) e [Segurança de Erros](https://www.php.net/manual/pt_BR/security.errors.php)
+- Fonte: [Declarações de tipo](https://www.php.net/manual/pt_BR/language.types.declarations.php)
+
+## Tags PHP
+
+Em arquivos que contêm apenas PHP, omitir a tag de fechamento `?>` é uma convenção útil para evitar bytes acidentais depois dela. Em arquivos mistos de PHP e HTML, siga a estrutura apropriada para esse formato.
+
+- Fonte: [Tags PHP](https://www.php.net/manual/pt_BR/language.basic-syntax.phptags.php)
+
+## Estilo e interoperabilidade
+
+Aplique o padrão de estilo já usado pelo projeto. Se não houver um, PSR-12 é uma escolha comum; confirme a versão e o escopo da especificação PHP-FIG. Ferramentas como formatadores ajudam a manter consistência, mas não substituem decisões de design.
+
+Declare a visibilidade das propriedades e dos métodos de forma explícita quando isso tornar o contrato mais claro. Use nomenclatura consistente com o projeto, inclusive quando a convenção diferir de exemplos genéricos.
+
+- Fonte: [PHP-FIG: PSR-12](https://www.php-fig.org/psr/psr-12/)
+- Fonte: [Visibilidade](https://www.php.net/manual/pt_BR/language.oop5.visibility.php)
+
+## Fluxo e tratamento de erros
+
+Retornos antecipados podem reduzir aninhamento, mas não são obrigatórios em todo método. Use exceções quando uma condição excepcional deva ser propagada; capture-as apenas quando houver uma ação útil, como converter a falha em resposta apropriada ou adicionar contexto. Evite capturar e ignorar erros.
+
+Em produção, configure a exibição e o registro de erros de acordo com o ambiente, sem expor detalhes internos ao usuário. Proteja os logs e evite incluir segredos ou dados pessoais desnecessários.
+
+- Fonte: [Tratamento de erros e exceções](https://www.php.net/manual/pt_BR/language.errors.php)
+- Fonte: [Segurança e tratamento de erros](https://www.php.net/manual/pt_BR/security.errors.php)

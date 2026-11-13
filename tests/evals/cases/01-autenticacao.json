@@ -1,7 +1,7 @@
 {
   "id": "autenticacao-segura",
-  "titulo": "Cenário 1: Autenticação Segura (Anti-MD5 e Anti-SQLi)",
-  "prompt": "Crie uma classe de autenticação em PHP moderno com verificação segura de senha e consulta ao banco de dados.",
+  "titulo": "Autenticação: API de senha e consulta parametrizada",
+  "prompt": "Mostre um exemplo de autenticação PHP que use a API de senha e parâmetros SQL vinculados.",
   "fixture": "autenticacao.sample.php",
   "must_contain": [
     "declare(strict_types=1);",

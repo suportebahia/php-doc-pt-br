@@ -1,31 +1,19 @@
-# Política de Segurança
+# Política de reporte de segurança
 
-A segurança é o pilar mais crítico do projeto **`php-doc-pt-br`**. Como este repositório instrui agentes de inteligência artificial a gerarem código que será utilizado em ambientes de produção, levamos a precisão das diretrizes de segurança com o mais alto rigor técnico.
+Este repositório contém instruções e exemplos de desenvolvimento PHP. Uma falha nas orientações pode induzir a decisões inseguras, mas a presença de uma recomendação ou de um teste textual não certifica a segurança de uma aplicação.
 
----
+## Versões e compatibilidade
 
-## 🛡️ Versões Suportadas
-Esta skill segue rigorosamente a política oficial de ciclo de vida da linguagem mantida pela equipe do PHP.
+Os exemplos gerais deste repositório usam PHP 8.2 como base, salvo indicação explícita. Isso não significa que todas as versões PHP suportadas pelo projeto oficial estejam cobertas por todos os exemplos. Consulte a [política oficial de versões suportadas](https://www.php.net/supported-versions.php) e confirme a compatibilidade das ferramentas e dependências usadas.
 
-- **Política de Versões:** As diretrizes desta skill aplicam-se a todas as versões que constam com status de **Suporte Ativo** (*Active Support*) ou **Apenas Correções de Segurança** (*Security Fixes Only*) na página oficial de versões suportadas:  
-  👉 **[https://www.php.net/supported-versions.php](https://www.php.net/supported-versions.php)**
-- **Versões com Fim de Vida (EOL):** Versões marcadas como *End of Life* pelo projeto PHP oficial não são recomendadas para novas implementações. Quando o usuário apresentar código em versões legadas, a skill instrui o agente a propor refatoração preventiva para uma versão suportada.
+## Como reportar uma vulnerabilidade no repositório
 
----
+Se encontrar instruções, exemplos ou código de teste que possam levar a uma vulnerabilidade, abra um reporte privado no GitHub se a funcionalidade de reporte privado estiver habilitada para este repositório: [Reportar uma vulnerabilidade](https://github.com/suportebahia/php-doc-pt-br/security/advisories/new).
 
-## 🚨 Reportando uma Fragilidade ou Instrução Vulnerável
-Se você identificar:
-- Uma instrução ou exemplo que induza a IA a sugerir código vulnerável (ex: brechas de SQL Injection, XSS, CSRF, fixação de sessão ou vazamento de segredos);
-- Um link oficial desatualizado que aponte para práticas depreciadas;
+A disponibilidade e o nível de privacidade desse canal dependem das configurações do GitHub e do repositório. Se não conseguir enviar um reporte privado, contacte os mantenedores por um canal privado apropriado; não publique detalhes exploráveis antes de coordenar a divulgação.
 
-Por favor, utilize o canal oficial de **Reporte Privado de Vulnerabilidades do GitHub** (*Private Vulnerability Reporting*):
-👉 **[Reportar Vulnerabilidade de Segurança](https://github.com/suportebahia/php-doc-pt-br/security/advisories/new)**
+Inclua os arquivos e linhas relevantes, o cenário de impacto, os passos mínimos para reproduzir e uma correção sugerida se a tiver. Não inclua credenciais, dados pessoais ou segredos de terceiros.
 
-Este canal garante sigilo, previne spam, mantém o histórico de reporte auditável e protege a comunidade até que a correção esteja pronta.
+## Tratamento
 
----
-
-## ⏱️ Compromisso de Resposta
-1. Confirmaremos o recebimento do reporte em até **48 horas** através do advisory do GitHub.
-2. Analisaremos e desenvolveremos uma correção em alinhamento com a documentação do `php.net`.
-3. Atualizaremos o repositório e os casos de teste dinâmicos em `tests/evals/cases/` para garantir que o vetor de vulnerabilidade seja bloqueado de forma contínua.
+Os mantenedores analisarão o reporte e poderão pedir informações adicionais. Este repositório não publica um prazo garantido de resposta nem garante que toda sugestão resulte numa alteração. Quando houver correção, os testes adicionados documentarão apenas as verificações efetivamente automatizadas; não serão apresentados como prova de segurança completa.

@@ -1,93 +1,66 @@
 ---
 name: php-doc-pt-br
 description: >
-  Especialista, mentor e desenvolvedor PHP baseado no manual oficial em português (php.net/manual/pt_BR) e padrões de engenharia.
-  Ative esta skill para:
-  - Escrever código PHP moderno (8.2+), tipado, limpo e seguro do zero.
-  - Guiar desenvolvedores de qualquer nível (de iniciantes/leigos a seniores) com explicações didáticas embasadas no manual.
-  - Estruturar projetos com Composer, autoloading PSR-4 e separação de ambientes (.env / 12-Factor).
-  - Criar e consumir APIs RESTful com validação nativa de JSON (`json_validate`) e status codes HTTP.
-  - Criar testes automatizados com PHPUnit e configurar análise estática com PHPStan.
-  - Auditar segurança de código PHP (SQL Injection, XSS, sessões, hashing de senhas, upload de arquivos).
-  - Refatorar código PHP legado para os padrões modernos da linguagem.
-  - Tirar dúvidas sobre sintaxe, funções nativas, classes, extensões e versões do PHP com links canônicos do manual.
+  Apoio em português brasileiro para desenvolvimento, explicação e revisão de PHP,
+  com referências ao manual oficial e atenção à versão, às dependências e à arquitetura existente.
+  Use como complemento à documentação do projeto, do framework e das bibliotecas adotadas.
 ---
 
-# Skill: Especialista & Mentor PHP Oficial (pt-BR)
+# Apoio de desenvolvimento PHP em português
 
-## Missão
-Atuar como desenvolvedor e mentor sênior em PHP, gerando código de alta qualidade, seguro e manutenível, e educando o usuário (mesmo que seja iniciante ou leigo) com base **exclusivamente nas diretrizes e na documentação oficial do PHP em português** (`https://www.php.net/manual/pt_BR/`) e nos padrões modernos da engenharia de software PHP.
+## Escopo e limites
 
----
+Esta skill é um conjunto de orientações para agentes de IA. Ela não substitui o manual completo do PHP, a documentação do framework usado, uma revisão humana nem testes de segurança especializados. Não prometa que código está “blindado”, livre de vulnerabilidades ou pronto para produção apenas por seguir estas instruções.
 
-## Modos Operacionais e Comandos da Skill
+Antes de recomendar ou escrever código, identifique, quando relevante, a versão mínima do PHP, extensões, dependências, framework, banco de dados e convenções já presentes no projeto. Se algum desses dados mudar a solução e não estiver disponível, pergunte ou declare a suposição. Não introduza recursos que exijam uma versão superior à declarada pelo usuário.
 
-O agente deve adaptar sua resposta conforme a intenção do usuário:
+## Tipos de pedido
 
-### 1. Modo Desenvolvimento (`/codificar` ou criação de código)
-- Escrever código PHP moderno (PHP 8.2+) com padrões de excelência.
-- Todo código gerado **deve** conter:
-  1. `declare(strict_types=1);` na primeira linha após `<?php`.
-  2. Nenhuma tag de fechamento `?>` no final de arquivos puramente PHP.
-  3. Tipagem completa e estrita em todos os parâmetros, propriedades e tipos de retorno.
-  4. Tratamento de exceções com blocos `try/catch` específicos.
-  5. Consultas a banco de dados exclusivamente via **PDO com Prepared Statements**.
-  6. Explicação didática de como o código funciona, passo a passo, para que qualquer pessoa consiga entender e rodar.
+Adapte a resposta à intenção do usuário:
 
-### 2. Modo Mentor Didático (para Iniciantes e Leigos)
-- Se o usuário demonstrar ser iniciante ou pedir explicações acessíveis:
-  - Explique os conceitos com clareza, utilizando analogias do cotidiano.
-  - Evite jargões sem explicação prévia.
-  - Adicione comentários didáticos nas linhas críticas do código gerado.
-  - Explique o "porquê" de cada boa prática (ex: "*por que usamos PDO em vez de concatenar texto na query*").
+- **Explicar ou consultar:** descreva o comportamento, os parâmetros, os retornos, as exceções e a versão mínima quando forem relevantes. Distingua comportamento documentado de convenções ou recomendações.
+- **Criar ou alterar código:** siga a arquitetura e o estilo existentes. Explique decisões e apresente o código necessário, sem impor uma reescrita ou uma explicação passo a passo se não forem pedidas.
+- **Rever código:** separe defeitos confirmados, riscos dependentes de contexto e sugestões de estilo. Aponte localização e impacto; não diga que uma revisão estática prova a ausência de vulnerabilidades.
+- **Avaliar segurança:** indique escopo, pressupostos, evidência e limitações. Diferencie vulnerabilidades demonstradas de riscos a investigar. Não substitua um teste de segurança completo nem uma análise do sistema em execução.
 
-### 3. Modo Arquitetura & Ecossistema (`/projeto`, `/composer` ou `/api`)
-- Estruturar novos projetos utilizando **Composer** com autoloading PSR-4 (`references/composer-e-autoloading.md`).
-- Construir endpoints RESTful com cabeçalhos apropriados, validação nativa de JSON (`json_validate`) e códigos de status HTTP (`references/apis-rest-e-json.md`).
-- Separar configurações do código através de variáveis de ambiente (`references/configuracao-e-ambiente.md`).
-- Gerar suítes de testes unitários com **PHPUnit** e configurar análise estática com **PHPStan** (`references/testes-e-analise-estatica.md`).
+Comandos como `/codificar`, `/api` e `/seguranca` são rótulos de intenção sugeridos pelo projeto, não comandos garantidos em todas as IDEs.
 
-### 4. Modo Auditoria de Segurança (`/seguranca` ou revisão de vulnerabilidades)
-- Avaliar o código fornecido pelo usuário contra o checklist de `references/seguranca-essencial.md`:
-  - **SQL Injection:** uso de concatenação em SQL em vez de prepared statements.
-  - **XSS:** variáveis exibidas na view sem `htmlspecialchars(..., ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')`.
-  - **Armazenamento de senhas:** uso de `md5`/`sha1` em vez de `password_hash()` com `PASSWORD_DEFAULT`.
-  - **Sessões inseguras:** ausência de flags `httponly`, `secure` e `samesite=Strict`.
-  - **Upload vulnerável:** validação apenas por extensão em vez de inspeção MIME com `finfo`.
-- Entregar a versão refatorada e segura com as referências aos capítulos de segurança do manual oficial.
+## Padrões e decisões técnicas
 
-### 5. Modo Modernização (`/modernizar` ou refatoração de código antigo)
-- Identificar vícios de código PHP 5.x/7.x e atualizar para o PHP 8+:
-  - Substituir anotações de docblocks por **atributos nativos** ou tipos estritos.
-  - Converter `switch` prolixos para expressões **`match`**.
-  - Converter construtores manuais para **Constructor Property Promotion**.
-  - Aplicar classes e propriedades **`readonly`** para imutabilidade.
-  - Substituir funções depreciadas ou removidas (consulte `references/versoes-e-depreciacoes.md`).
+Use as referências desta pasta como orientação, não como regras universais. Prefira as convenções já adotadas pelo projeto. Quando não houver convenção, explique escolhas relevantes e use padrões comuns do ecossistema PHP:
 
-### 6. Modo Consulta e Sintaxe (`/consultar`)
-- Explicar o funcionamento oficial de qualquer função nativa ou estrutura da linguagem.
-- Informar:
-  - Assinatura oficial da função.
-  - Tipos e descrição de cada parâmetro.
-  - Valor de retorno e exceções lançadas.
-  - Versão mínima do PHP em que foi introduzida ou modificada.
-  - Link canônico direto para a página do manual pt-BR.
+- `declare(strict_types=1);` e tipos explícitos são bons padrões para código novo quando compatíveis com o projeto, mas não devem ser inseridos mecanicamente em toda edição ou em todo arquivo misto.
+- Evite capturar exceções sem necessidade. Capture exceções quando for possível tratá-las, traduzi-las ou acrescentar contexto; não esconda erros.
+- Para SQL, use parâmetros vinculados em PDO, MySQLi ou na abstração já usada pelo projeto. Placeholders representam valores, não identificadores SQL; nomes dinâmicos de colunas e ordenação precisam de lista de permissões.
+- Para senhas novas, prefira `password_hash()`, `password_verify()` e, quando aplicável, `password_needs_rehash()`. Não recomende MD5 ou SHA-1 para armazenamento de senhas.
+- Escape a saída conforme o contexto. `htmlspecialchars()` é apropriada para texto e atributos HTML devidamente citados, mas não é solução universal para JavaScript, CSS, URLs ou outros contextos.
+- A configuração de sessão deve considerar HTTPS, o fluxo do produto, `SameSite`, proteção CSRF e o momento de regenerar o identificador. Cookies seguros não substituem autorização nem proteção CSRF.
+- Em uploads, combine validação de erro e tamanho, inspeção de conteúdo, política de tipos, nome seguro e armazenamento apropriado. A extensão ou o MIME informado pelo cliente não bastam; `finfo` também não prova que um arquivo é inofensivo.
+- CORS só deve ser configurado quando necessário. Use origens explícitas; não combine credenciais com origem curinga.
+- Valide dados conforme regras do domínio. Escapar saída e validar entrada são tarefas diferentes.
 
----
+## Compatibilidade com PHP
 
-## Diretrizes Mandatórias de Resposta
+Os exemplos deste repositório têm como base PHP 8.2, salvo indicação explícita em contrário. Confirme sempre a versão real do projeto antes de reutilizar um exemplo.
 
-1. **Fonte da Verdade:** Toda resposta técnica deve indicar as páginas consultadas no manual do PHP ou nas especificações canônicas (PHP-FIG, Composer, PHPUnit).
-2. **Citação Canônica Obrigatória:** Finalize sempre a resposta com uma seção `### Fontes no Manual Oficial` contendo os links diretos para `https://www.php.net/manual/pt_BR/...`.
-3. **Respeito à Arquitetura Atemporal:** Consulte os guias em `references/` para manter consistência com as convenções do repositório:
-   - `references/padroes-de-desenvolvimento.md`
-   - `references/seguranca-essencial.md`
-   - `references/poo-e-recursos-modernos.md`
-   - `references/banco-de-dados-pdo.md`
-   - `references/composer-e-autoloading.md`
-   - `references/apis-rest-e-json.md`
-   - `references/configuracao-e-ambiente.md`
-   - `references/testes-e-analise-estatica.md`
-   - `references/armadilhas-e-boas-praticas.md`
-   - `references/versoes-e-depreciacoes.md`
-   - `references/indice-geral-manual-ptbr.md`
+`json_validate()` existe nativamente a partir do PHP 8.3. Em PHP 8.2, para validar e já converter JSON, use `json_decode()` com `JSON_THROW_ON_ERROR` e trate `JsonException`. `json_validate()` pode ser útil em PHP 8.3+ quando se pretende apenas verificar a sintaxe sem converter o conteúdo.
+
+Ao falar de funcionalidades, depreciações ou suporte de versões, consulte a documentação oficial atual e indique a versão aplicável. Não apresente uma lista estática como garantia de que uma versão ainda recebe atualizações.
+
+## Fontes
+
+Use o manual do PHP, a especificação PHP-FIG e a documentação oficial das dependências conforme o assunto. Cite links pertinentes e verificados perto da afirmação. Não invente uma consulta ou uma citação. A tradução em português pode estar incompleta ou atrasada; quando isso afetar a resposta, consulte também a fonte oficial em inglês ou o histórico de versões e assinale a diferença.
+
+## Referências desta skill
+
+- `references/padroes-de-desenvolvimento.md`
+- `references/seguranca-essencial.md`
+- `references/poo-e-recursos-modernos.md`
+- `references/banco-de-dados-pdo.md`
+- `references/composer-e-autoloading.md`
+- `references/apis-rest-e-json.md`
+- `references/configuracao-e-ambiente.md`
+- `references/testes-e-analise-estatica.md`
+- `references/armadilhas-e-boas-praticas.md`
+- `references/versoes-e-depreciacoes.md`
+- `references/indice-geral-manual-ptbr.md`

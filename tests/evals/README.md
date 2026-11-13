@@ -1,137 +1,44 @@
-# Test Harness de Avaliação da Skill (AI Evals)
+# Verificações estáticas da skill
 
-Esta pasta contém a suíte de testes determinísticos e avaliações de IA (**AI Evals**) para garantir que a skill `php-doc-pt-br` gere apenas código moderno, tipado, seguro e livre de alucinações legadas.
+Este diretório contém casos JSON, fixtures textuais e um runner simples. As verificações procuram requisitos ou padrões específicos no conteúdo; não executam as fixtures, não testam a aplicação em produção e não provam correção, segurança ou ausência de alucinações. Um resultado aprovado significa apenas que os critérios definidos passaram.
 
----
+## Execução local
 
-## 🎯 Filosofia de Execução e CI
+O runner requer PHP 8.2 ou posterior e não instala dependências:
 
-Para garantir previsibilidade e evitar custos com tokens e problemas de flakiness (não-determinismo) em Pull Requests:
-1. **No CI do GitHub Actions:** O harness executa exclusivamente em modo de **Fixtures Canônicas** (`php tests/evals/run-evals.php`). Isso garante 100% de estabilidade determinística, tempo de execução inferior a 2 segundos e custo zero de API.
-2. **Em Desenvolvimento Local ou Pré-Release:** O desenvolvedor pode rodar no modo **Live** (`--live`) para avaliar modelos de linguagem em tempo real contra a suíte.
-
----
-
-## 🚀 Como Executar
-
-### 1. Modo Padrão (Validação de Fixtures / CI)
-Validação offline rápida e determinística das fixtures canônicas:
-```bash
-php tests/evals/run-evals.php
-```
-
-### 2. Modo Apenas Validação de Schema (`--validate-only`)
-Verifica se todos os arquivos `.json` na pasta `cases/` atendem estritamente aos tipos e campos obrigatórios sem rodar o código:
 ```bash
 php tests/evals/run-evals.php --validate-only
-```
-
-### 3. Executando um Caso Específico (`--case=<id>`)
-Filtra a execução para rodar apenas um cenário pelo ID:
-```bash
+php tests/evals/run-evals.php
 php tests/evals/run-evals.php --case=autenticacao-segura
+php tests/evals/test-runner.php
+php tests/evals/validate-links.php
 ```
-> ⚠️ **Nota:** O parâmetro `--case` destina-se exclusivamente ao desenvolvimento e depuração local. No pipeline de CI, todos os testes rodam obrigatoriamente sem filtros.
 
-### 4. Modo Live com IA em Tempo Real (`--live`)
-Envia o `prompt` diretamente para um agente ou LLM e valida a resposta em tempo real.
+`--validate-only` valida o formato dos casos e a existência das fixtures dentro da pasta esperada. O modo padrão compara cada fixture com os requisitos definidos no JSON. Os filtros são convenientes para desenvolvimento; o CI executa o conjunto completo.
 
-#### O Contrato da Interface `AI_EVAL_CMD` / `--agent-cmd`:
-O comando deve receber o prompt como argumento final da CLI (ou via STDIN) e imprimir a resposta do modelo no `STDOUT`.
+`test-runner.php` verifica alguns limites do runner, incluindo rejeição de caminhos de fixture fora da pasta e tratamento de metacaracteres como argumentos literais. `validate-links.php` verifica o formato e o domínio dos links do manual nas referências; não faz pedidos HTTP para provar que cada página continua disponível.
 
-Exemplos de configuração:
+## Avaliação opcional com um agente local
+
+O modo `--live` executa um programa local escolhido pelo usuário. O runner recebe a configuração como um array JSON de argumentos e inicia o executável sem passar por um shell. Isso reduz riscos de interpretação de metacaracteres, mas não torna confiável um executável desconhecido: esse programa pode ter permissões, ler arquivos e acessar à rede conforme o ambiente local. Use apenas programas que conhece e confia. O modo não é executado no CI.
+
+O prompt do caso é acrescentado como último argumento. Exemplo para Claude Code:
+
 ```bash
-# Exemplo 1: Usando o CLI do Claude Code:
-php tests/evals/run-evals.php --live --agent-cmd="claude -p"
+php tests/evals/run-evals.php --live --agent-command-json='["claude","-p"]'
+```
 
-# Exemplo 2: Usando a variável de ambiente:
-export AI_EVAL_CMD="claude -p"
+Ou configure a variável de ambiente:
+
+```bash
+export AI_EVAL_COMMAND_JSON='["claude","-p"]'
 php tests/evals/run-evals.php --live
-
-# Exemplo 3: Usando script wrapper customizado (ex: cURL genérico):
-php tests/evals/run-evals.php --live --agent-cmd="bash ./scripts/consultar-llm.sh"
 ```
 
-#### Exemplo 4: Ollama (modelo local, custo zero de tokens)
-```bash
-php tests/evals/run-evals.php --live --agent-cmd="ollama run llama3.1"
-```
-O `ollama run` recebe o prompt como argumento e imprime o código no STDOUT. Ideal para benchmark local sem custo de API.
+O runner limita a execução a 60 segundos e a saída conjunta a 1 MiB. A resposta é comparada com as mesmas verificações textuais e pode falhar por diferenças de redação, comentários ou formato. Uma aprovação tampouco constitui validação semântica do código.
 
-#### Exemplo 5: OpenAI via wrapper cURL
-Crie `scripts/consultar-openai.sh`:
-```bash
-#!/bin/bash
-PROMPT="$1"
-curl -s https://api.openai.com/v1/chat/completions \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d "{\"model\":\"gpt-4o\",\"messages\":[{\"role\":\"user\",\"content\":$(jq -n --arg p "$PROMPT" '$p')}]}" \
-  | jq -r '.choices[0].message.content'
-```
-Depois:
-```bash
-php tests/evals/run-evals.php --live --agent-cmd="bash ./scripts/consultar-openai.sh"
-```
+## Formato dos casos
 
-### ⏱️ Timeout e Robustez
+Cada arquivo `cases/*.json` contém `id`, `titulo`, `prompt`, `fixture`, `must_contain` e `must_not_contain`; `patterns_not_match` é opcional. Os campos de requisitos são listas de strings e as expressões regulares devem ser válidas. A fixture deve ser um arquivo PHP dentro de `fixtures/`; o runner não executa o seu conteúdo.
 
-O `shell_exec()` não tem timeout nativo. Se o agente travar (ex: erro de rede, autenticação pendente), o harness trava junto. Para evitar isso, envolva o comando com `timeout`:
-
-```bash
-php tests/evals/run-evals.php --live --agent-cmd="timeout 60 claude -p"
-```
-O comando `timeout 60` encerra o processo após 60 segundos e retorna exit code 124, que o harness trata como falha (resposta null ou vazia).
-
-### ⚠️ Limitações do Modo --live
-
-O modo `--live` valida a resposta bruta da IA contra `must_contain`, `must_not_contain` e `patterns_not_match`. Isso pode gerar **falsos positivos** em dois cenários:
-
-1. **Menções em comentários**: se a IA gerar um comentário como `// Nunca use md5() para senhas`, a asserção `must_not_contain: ["md5("]` vai falhar, mesmo que o código esteja correto.
-2. **Explicações didáticas**: se o prompt pedir explicação, a IA pode citar `mysql_*` como anti-padrão, e a asserção `must_not_contain: ["mysql_"]` vai falhar.
-
-**Recomendação**: para o modo `--live`, prefira prompts que peçam **apenas o código**, sem explicações. Para prompts didáticos, use o modo fixture (CI) e valide a explicação manualmente.
-
----
-
-## 📋 Schema dos Casos de Teste (`cases/*.json`)
-
-Todo caso de teste na pasta `tests/evals/cases/` deve ser um arquivo JSON com a seguinte estrutura:
-
-```json
-{
-  "id": "identificador-unico",
-  "titulo": "Título descritivo do cenário",
-  "prompt": "O prompt que é enviado para a IA",
-  "fixture": "nome_do_arquivo.sample.php",
-  "must_contain": [
-    "trecho_obrigatorio_1",
-    "trecho_obrigatorio_2"
-  ],
-  "must_not_contain": [
-    "trecho_proibido_1",
-    "trecho_proibido_2"
-  ],
-  "patterns_not_match": [
-    "/expressao_regular_proibida/i"
-  ]
-}
-```
-
-### Papel dos Campos:
-* **`id`** *(string, obrigatório)*: Identificador único em kebab-case.
-* **`titulo`** *(string, obrigatório)*: Nome legível do cenário de teste.
-* **`prompt`** *(string, obrigatório)*: Texto do prompt enviado para a IA quando em modo `--live`.
-* **`fixture`** *(string, obrigatório)*: Nome do arquivo em `tests/evals/fixtures/` contendo a implementação canônica aprovada para o modo offline (CI).
-* **`must_contain`** *(array de strings, obrigatório)*: Trechos que obrigatoriamente devem constar na resposta.
-* **`must_not_contain`** *(array de strings, obrigatório)*: Trechos proibidos (ex: `md5`, `mysql_`, `?>`).
-* **`patterns_not_match`** *(array de regex, opcional)*: Expressões regulares proibidas.
-
----
-
-## 🛠️ Como Adicionar um Novo Caso de Teste
-
-1. Crie um arquivo em `tests/evals/cases/XX-meu-cenario.json`.
-2. Adicione a fixture canônica em `tests/evals/fixtures/meu_cenario.sample.php`.
-3. Valide o schema: `php tests/evals/run-evals.php --validate-only`.
-4. Execute o harness: `php tests/evals/run-evals.php`.
+As verificações por substring e regex são heurísticas simples. Podem produzir falsos positivos e falsos negativos: por exemplo, uma palavra proibida em comentário pode falhar e código inseguro equivalente pode não conter a sequência procurada. Acrescente testes funcionais, análise estática e revisão adequada ao sistema quando necessário.

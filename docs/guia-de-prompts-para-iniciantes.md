@@ -1,62 +1,29 @@
-# Guia de Prompts para Iniciantes e Leigos
+# Prompts para aprender e trabalhar com PHP
 
-Como extrair o máximo do agente de IA utilizando a skill `php-doc-pt-br`, mesmo que você nunca tenha programado em PHP antes.
+Prompts claros costumam incluir o objetivo, o contexto do projeto, o resultado esperado e o nível de explicação desejado. Antes de pedir uma alteração concreta, informe a versão mínima do PHP, o framework, as dependências relevantes e o código relacionado.
 
----
+Substitua os trechos entre colchetes pelos dados do seu projeto. Se não souber uma informação, peça à IA que declare a suposição em vez de inventá-la.
 
-## 💡 O Segredo: Como Pedir para a IA
-Agentes de IA respondem muito melhor quando recebem uma **intenção clara**, o **resultado esperado** e pedem uma **explicação didática**.
+## Exemplo: rever um fluxo de autenticação
 
-Copie e cole os modelos abaixo, adaptando as palavras entre colchetes `[assim]` para o seu caso real:
+> “Analise este fluxo de login em [versão do PHP/framework]. Antes de propor código, indique o que precisa confirmar. Verifique armazenamento e verificação de senhas, consultas ao banco, sessões, autorização e tratamento de erros. Separe problemas confirmados de riscos que dependem da configuração. Não afirme que o resultado fica totalmente seguro; indique testes e fontes oficiais relevantes. Explique para uma pessoa iniciante.”
 
----
+## Exemplo: gravar dados de um formulário
 
-## Modelo 1: Criando um Sistema de Login Seguro
-> **Prompt:**
-> "Atue com a skill `php-doc-pt-br`. Eu preciso criar um fluxo de login seguro em PHP para os usuários do meu site. 
-> 1. Escreva o código moderno utilizando `password_verify` e PDO com Prepared Statements.
-> 2. Explique de forma simples para um iniciante por que não devemos usar md5 e como o hash protege as senhas.
-> 3. Inclua comentários nas linhas importantes e cite as fontes do manual do PHP."
+> “No projeto [framework/versão], preciso validar e gravar nome, e-mail e mensagem na tabela [schema]. Siga as convenções e a camada de acesso a dados já existentes. Mostre quais validações são de formato e quais são regras de negócio. Explique o tratamento de falhas sem expor detalhes internos ao usuário.”
 
----
+## Exemplo: criar ou rever uma API JSON
 
-## Modelo 2: Salvando Dados de um Formulário de Contato no Banco
-> **Prompt:**
-> "Atue com a skill `php-doc-pt-br`. Recebi dados de um formulário com os campos: nome, e-mail e mensagem.
-> 1. Crie uma classe de serviço em PHP moderno para validar esses campos (e-mail válido, campos obrigatórios preenchidos).
-> 2. Salve os dados em uma tabela `mensagens_contato` usando PDO sem risco de SQL Injection.
-> 3. Mostre como tratar se o banco cair com `try/catch` de forma amigável para quem está preenchendo o formulário."
+> “Para [versão do PHP/framework], implemente o endpoint [contrato]. Use os códigos HTTP definidos pelo projeto, valide o formato do JSON e as regras de domínio, e não configure CORS se não for necessário. Indique os limites do exemplo e proponha testes para entradas válidas e inválidas.”
 
----
+## Exemplo: análise de segurança
 
-## Modelo 3: Criando uma API que Retorna JSON
-> **Prompt:**
-> "Atue com a skill `php-doc-pt-br`. Preciso criar um endpoint de API em PHP puro chamado `listar-produtos.php` que retorna uma lista de produtos do banco de dados em formato JSON.
-> 1. Configure os cabeçalhos HTTP corretos (`Content-Type: application/json` e CORS).
-> 2. Consulte o banco via PDO e formate a resposta com `json_encode` mantendo acentuações e caracteres em português.
-> 3. Se não houver produtos ou der erro, retorne o código HTTP adequado (ex: 404 ou 500) com uma mensagem de erro em JSON."
+> “Revise o código abaixo para [versão do PHP] e [framework]. Aponte cada problema com localização, evidência e impacto. Diferencie uma vulnerabilidade demonstrada de um risco que depende do ambiente. Não reescreva a arquitetura sem justificar. Depois sugira correções e testes; não declare o código livre de vulnerabilidades.”
 
----
+## Exemplo: entender uma função
 
-## Modelo 4: Auditando e Blindando um Código Existente
-> **Prompt:**
-> "Atue no modo `/seguranca` da skill `php-doc-pt-br`. Analise o código PHP que vou colar abaixo:
-> [COLE O SEU CÓDIGO AQUI]
-> 
-> 1. Aponte se existem brechas de segurança (SQL Injection, XSS, vazamento de erros).
-> 2. Mostre a versão refatorada no padrão moderno PHP 8.2+.
-> 3. Explique didaticamente o que estava vulnerável e como o manual recomenda corrigir."
+> “Explique a diferença entre `isset()`, `empty()` e `array_key_exists()` na versão de PHP que uso. Mostre exemplos pequenos, diga quando cada função é apropriada e inclua links para o manual oficial. Se houver alguma diferença entre a tradução pt-BR e a documentação em inglês, indique-a.”
 
----
+## Dicas
 
-## Modelo 5: Entendendo uma Função do PHP (Modo Professor)
-> **Prompt:**
-> "Atue no modo didático da skill `php-doc-pt-br`. Não entendi a diferença entre `isset()`, `empty()` e `array_key_exists()`. 
-> Explique com uma analogia do dia a dia, mostre um exemplo de código com um caso real onde cada um deve ser usado e coloque o link do manual oficial de cada um."
-
----
-
-## 🏆 3 Dicas de Ouro para Conversar com o Agente:
-1. **Diga seu nível de experiência:** Iniciar com *"Sou iniciante, explique passo a passo..."* faz a IA trocar jargões difíceis por explicações claras.
-2. **Peça comentários no código:** *"Comente no código o que cada bloco faz"* ajuda você a aprender enquanto roda o sistema.
-3. **Sempre peça o código completo:** Peça *"Forneça o arquivo completo pronto para salvar e rodar"*, evitando códigos cortados com reticências `...`.
+Informe seu nível de experiência e peça exemplos completos apenas quando isso for útil. Ao aprender, peça explicações dos conceitos, não apenas um bloco de código para copiar. Antes de executar código gerado, leia-o, confirme dependências e use um ambiente de desenvolvimento isolado.

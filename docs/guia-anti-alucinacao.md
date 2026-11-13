@@ -1,38 +1,22 @@
-# Guia Anti-Alucinação para Iniciantes
+# Checklist para rever código PHP gerado por IA
 
-Como auditar em 5 minutos o código gerado por qualquer IA e ter certeza de que você recebeu código seguro, moderno e baseado no manual oficial do PHP.
+Este checklist ajuda a encontrar problemas comuns; não confirma que o código é seguro, correto ou pronto para produção. A revisão depende do contexto, da versão de PHP, das dependências e do sistema completo.
 
----
+## Perguntas úteis para a revisão
 
-## 🚩 Os 7 Sinais de Alerta (Red Flags)
-Se o código gerado pela IA contiver qualquer um dos itens abaixo, **a IA alucinou ou usou dados defasados da internet**. Rejeite o código e aplique o prompt de correção:
+1. **Compatibilidade:** o exemplo usa apenas sintaxe, funções e extensões disponíveis na versão mínima do projeto?
+2. **Entradas e banco de dados:** os valores externos são validados conforme o domínio e separados da consulta SQL por parâmetros vinculados? Identificadores dinâmicos são limitados por uma lista permitida?
+3. **Senhas:** o fluxo usa `password_hash()` e `password_verify()` em vez de hashes rápidos ou texto simples?
+4. **Saída:** os dados são codificados para o contexto específico de HTML, URL, JavaScript ou template? `htmlspecialchars()` não serve para todos os contextos.
+5. **Arquivos enviados:** são verificados erros, limites, tipo de conteúdo e destino? A extensão e o MIME declarado pelo cliente não são suficientes.
+6. **Sessões e autorização:** o fluxo regenera o identificador quando apropriado e verifica autorização em cada operação? Cookies não substituem proteção CSRF.
+7. **Tratamento de erros:** erros internos e segredos são mantidos fora das respostas e dos logs acessíveis publicamente?
+8. **Integração:** o código segue a arquitetura, as dependências, as transações e as convenções do projeto, em vez de criar uma segunda abordagem paralela?
+9. **Verificação:** existem testes relevantes? Leia os testes e confirme o que cobrem; não deduza segurança pela presença de palavras como `prepare`, `finfo` ou `htmlspecialchars`.
+10. **Fontes:** versões e comportamentos de funções foram conferidos na documentação oficial apropriada?
 
-| # | Sinal de Alerta no Código | Por que é Perigoso? | O que DEVE Estar no Lugar |
-| :-: | :--- | :--- | :--- |
-| **1** | Falta `declare(strict_types=1);` no topo | O PHP converterá tipos silenciosamente (ex: `"10"` virando número), causando bugs imprevisíveis. | Deve ser a primeira linha após `<?php`. |
-| **2** | Concatenação em SQL: `"... WHERE id = $id"` | **SQL Injection Crítico!** Qualquer um pode invadir seu banco de dados. | Deve usar PDO com `prepare()` e `:id` parametrizado. |
-| **3** | Uso de `md5()` ou `sha1()` para senhas | Senhas com MD5 são quebradas em segundos por invasores. | Deve usar `password_hash()` e `password_verify()`. |
-| **4** | Funções `mysql_*` ou `mysqli` sem prepared | Extensão `mysql_*` foi **removida** do PHP moderno no PHP 7.0. | Deve usar a extensão nativa **PDO**. |
-| **5** | Tag de fechamento `?>` no final do arquivo | Pode enviar espaços em branco acidentais e quebrar cabeçalhos HTTP/cookies. | Arquivos puramente PHP **nunca** fecham com `?>`. |
-| **6** | Validação de upload por extensão ou `$_FILES['type']` | Invasores podem renomear um vírus para `.jpg` ou forjar o header. | Deve usar a extensão nativa `finfo` (MIME real). |
-| **7** | Saída HTML com `echo $_POST['...']` direto | **XSS (Cross-Site Scripting)!** Invasores podem injetar JavaScript no seu site. | Deve usar `htmlspecialchars(..., ENT_QUOTES \| ENT_SUBSTITUTE)`. |
+## Como pedir uma revisão melhor
 
----
+Peça ao agente que declare a versão do PHP assumida, o framework e as dependências necessárias; explique as suposições; aponte riscos e limitações; e proponha testes. Se o código for para produção ou tratar dados sensíveis, faça uma revisão humana e use um processo de segurança proporcional ao risco.
 
-## ⏱️ O Checklist dos 5 Minutos (Auditoria Rápida)
-Quando a IA terminar de gerar o seu arquivo PHP, faça esta checagem visual:
-
-1. [ ] A primeira linha do arquivo é exatamente `declare(strict_types=1);`?
-2. [ ] Todas as funções e métodos têm tipos declarados? (Ex: `function somar(int $a, int $b): int`)
-3. [ ] Não há nenhuma tag `?>` na última linha do arquivo?
-4. [ ] Se mexer com banco de dados, todas as consultas usam `->prepare(` e `->execute(`?
-5. [ ] A resposta da IA terminou com links para o manual oficial `https://www.php.net/manual/pt_BR/...`?
-
-Se todas as respostas forem **SIM**, o código é confiável e segue o padrão oficial!
-
----
-
-## ⚡ Prompt Corretivo de 1 Linha (Para Quando a IA Errar)
-Se a IA vacilar e gerar código antigo, copie e cole este comando corretivo:
-
-> *"Você gerou código com práticas antigas ou vulneráveis. Ative a skill `php-doc-pt-br`, remova a tag de fechamento ?>, aplique `declare(strict_types=1);`, use exclusivamente PDO com Prepared Statements e fundamente com os links do manual oficial em pt-BR."*
+A skill e este checklist são auxiliares. Nenhum checklist breve consegue garantir ausência de vulnerabilidades.

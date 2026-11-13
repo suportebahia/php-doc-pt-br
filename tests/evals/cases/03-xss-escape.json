@@ -1,7 +1,7 @@
 {
   "id": "xss-escape",
-  "titulo": "Cenário 3: Proteção contra Cross-Site Scripting (XSS)",
-  "prompt": "Como renderizar dados enviados pelo usuário com segurança no HTML em PHP?",
+  "titulo": "Escape de um valor em contexto HTML",
+  "prompt": "Mostre um exemplo de escape de um valor para texto HTML e explique por que a função escolhida depende do contexto.",
   "fixture": "xss_escape.sample.php",
   "must_contain": [
     "htmlspecialchars",

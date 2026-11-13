@@ -1,14 +1,16 @@
 {
   "id": "api-rest-json",
-  "titulo": "Cenário 4: APIs RESTful e JSON Seguro",
-  "prompt": "Crie um endpoint de API REST que responda JSON e valide o payload de entrada de forma estrita.",
+  "titulo": "API REST: resposta JSON e decodificação com tratamento de erro",
+  "prompt": "Crie um exemplo PHP 8.2 que leia um corpo JSON de uma API, trate JSON malformado e retorne uma resposta JSON.",
   "fixture": "api_rest.sample.php",
   "must_contain": [
     "application/json",
+    "json_decode(",
     "JSON_THROW_ON_ERROR"
   ],
   "must_not_contain": [
-    "?>"
+    "?>",
+    "json_validate("
   ],
   "patterns_not_match": []
 }
