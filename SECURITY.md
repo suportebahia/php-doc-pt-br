@@ -18,14 +18,14 @@ Se você identificar:
 - Uma instrução ou exemplo que induza a IA a sugerir código vulnerável (ex: brechas de SQL Injection, XSS, CSRF, fixação de sessão ou vazamento de segredos);
 - Um link oficial desatualizado que aponte para práticas depreciadas;
 
-Por favor, **não** abra uma Issue pública imediatamente se a fragilidade puder comprometer sistemas em produção de forma crítica. 
+Por favor, utilize o canal oficial de **Reporte Privado de Vulnerabilidades do GitHub** (*Private Vulnerability Reporting*):
+👉 **[Reportar Vulnerabilidade de Segurança](https://github.com/suportebahia/php-doc-pt-br/security/advisories/new)**
 
-Envie um e-mail com detalhes técnicos e sugestão de correção para:
-📧 **fernando.guppies@gmail.com** (com o assunto: `[SEGURANÇA] php-doc-pt-br`).
+Este canal garante sigilo, previne spam, mantém o histórico de reporte auditável e protege a comunidade até que a correção esteja pronta.
 
 ---
 
 ## ⏱️ Compromisso de Resposta
-1. Confirmaremos o recebimento do reporte em até **48 horas**.
+1. Confirmaremos o recebimento do reporte em até **48 horas** através do advisory do GitHub.
 2. Analisaremos e desenvolveremos uma correção em alinhamento com a documentação do `php.net`.
-3. Atualizaremos o repositório e o test harness (`tests/evals/cases/`) para garantir que o vetor de vulnerabilidade seja bloqueado de forma contínua.
+3. Atualizaremos o repositório e os casos de teste dinâmicos em `tests/evals/cases/` para garantir que o vetor de vulnerabilidade seja bloqueado de forma contínua.
