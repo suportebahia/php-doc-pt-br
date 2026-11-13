@@ -1,4 +1,4 @@
-name: CI - Integridade da Skill
+name: CI - Integridade e Evals da Skill
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    name: Validar Estrutura e Links da Skill
+    name: Validar Estrutura, Links e Test Harness
     runs-on: ubuntu-latest
 
     steps:
@@ -19,33 +19,39 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, curl
+          extensions: mbstring, curl, fileinfo
 
-      - name: Validar Sintaxe dos Arquivos Markdown e Links Canônicos
+      - name: Validar Existência dos Arquivos Obrigatórios de Governança
         run: |
-          echo "Verificando se todos os arquivos obrigatórios existem..."
+          echo "Verificando arquivos estruturais e de governança..."
           test -f "SKILL.md" || exit 1
           test -f "AGENTS.md" || exit 1
           test -f "CLAUDE.md" || exit 1
           test -f ".cursorrules" || exit 1
           test -f "README.md" || exit 1
           test -f "LICENSE" || exit 1
-          echo "Todos os arquivos centrais existem!"
-          
-          echo "Validando links para o manual oficial do PHP..."
+          test -f "CONTRIBUTING.md" || exit 1
+          test -f "SECURITY.md" || exit 1
+          test -f "CODE_OF_CONDUCT.md" || exit 1
+          echo "Todos os arquivos centrais e de governança foram verificados!"
+
+      - name: Executar Test Harness de Evals da IA (Sistema Imunológico)
+        run: |
+          php tests/evals/run-evals.php
+
+      - name: Validar Links Canônicos para o Manual Oficial
+        run: |
           php -r '
             $arquivos = glob("references/*.md");
-            $linksInvalidos = 0;
             foreach ($arquivos as $arq) {
                 $conteudo = file_get_contents($arq);
                 preg_match_all("/https:\/\/www\.php\.net\/manual\/pt_BR\/[^\)\s]+/", $conteudo, $matches);
                 foreach ($matches[0] as $link) {
                     if (str_contains($link, "example.com")) continue;
-                    // Valida formato de URL canônica do manual
                     if (!preg_match("/^https:\/\/www\.php\.net\/manual\/pt_BR\/[a-zA-Z0-9_\-\.\#]+$/", $link)) {
                         echo "Alerta de link malformado em $arq: $link\n";
                     }
                 }
             }
-            echo "Varredura de links canônicos concluída com sucesso!\n";
+            echo "Links canônicos verificados com sucesso!\n";
           '

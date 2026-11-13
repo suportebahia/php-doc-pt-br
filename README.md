@@ -1,28 +1,50 @@
 # php-doc-pt-br
 
-> **Skill e Mentor de Desenvolvimento PHP Oficial em Português para Agentes de IA e Desenvolvedores.**  
+> **Skill, Mentor e Test Harness de Desenvolvimento PHP Oficial em Português para Agentes de IA e Desenvolvedores.**  
 > Baseado no manual oficial do PHP (`https://www.php.net/manual/pt_BR/`) e nos padrões modernos de engenharia da comunidade (PSR / Composer / PHPUnit).
 
 ---
 
-## 🎯 Objetivo
+## 🎯 Por que Este Projeto Existe?
 
-Ensinar agentes de IA (Claude Code, Antigravity IDE, Cursor, etc.) a atuar como **desenvolvedores e mentores sênior em PHP**. 
+Os modelos de IA atuais (Claude, GPT, Gemini) foram treinados com um volume gigantesco de código legado dos últimos 20 anos da internet. Sem direcionamento, **as IAs frequentemente sofrem de retrocesso estatístico**, sugerindo código arcaico (PHP 5/7), funções obsoletas e brechas graves de segurança (SQL Injection e senhas em MD5).
 
-A skill garante que qualquer pessoa — desde um **iniciante/leigo** até um **arquiteto de software** — receba:
-- Código PHP moderno (PHP 8.2+), tipado, limpo e seguro do zero.
-- Explicações didáticas e descomplicadas, fundamentadas nas boas práticas do manual.
-- Estruturação de projetos reais com Composer, Autoloading PSR-4 e separação de ambientes (`.env`).
-- Criação e consumo de APIs RESTful com validação nativa de JSON (`json_validate`) e códigos HTTP corretos.
-- Garantia de qualidade com testes automatizados (PHPUnit) e análise estática (PHPStan).
-- Auditoria preventiva de segurança (mitigação de SQL Injection, XSS, CSRF, sessões e uploads).
-- Links canônicos para cada conceito consultado no manual oficial em português.
+O **`php-doc-pt-br`** resolve esse problema através de 3 pilares interdependentes:
+1. **O Cérebro:** Instruções precisas e atemporais para os agentes de IA (`SKILL.md`, `AGENTS.md`, `.cursorrules`).
+2. **O Sistema Imunológico:** Um Test Harness automatizado de Evals (`tests/evals/`) que prova matematicamente que o código gerado é seguro e livre de alucinações.
+3. **A Escola & Governança:** Trilhas didáticas para humanos auditarem a IA (`docs/`) e governança aberta com a comunidade PHP Brasil (`CONTRIBUTING.md`).
 
 ---
 
-## ⚡ Modos Operacionais e Comandos da Skill
+## 🛡️ O Sistema Imunológico (Test Harness da Skill)
 
-Quando esta skill está ativa, o agente responde de forma especializada aos seguintes comandos e intenções:
+Para garantir que a IA não invente código vulnerável, o projeto inclui uma suíte de avaliação nativa (**AI Evals**) executável localmente e no GitHub Actions:
+
+```bash
+php tests/evals/run-evals.php
+```
+
+Ela valida rigorosamente:
+- ✅ **Autenticação Segura:** Bloqueia `md5`, `sha1` e concatenação de SQL; exige `password_verify` e `PDO::prepare`.
+- ✅ **Upload de Arquivos:** Bloqueia validações frágeis por extensão; exige inspeção MIME real via `finfo`.
+- ✅ **Proteção XSS:** Exige `htmlspecialchars(..., ENT_QUOTES | ENT_SUBSTITUTE)`.
+- ✅ **APIs REST:** Exige cabeçalhos JSON corretos e validação com `json_validate()`.
+- ✅ **POO Moderna:** Exige tipagem estrita, classes `readonly` e proíbe funções depreciadas.
+
+---
+
+## 🎓 A Escola (Conteúdo Estruturado para Humanos)
+
+- 🗺️ **[Trilha do Iniciante (Do Zero ao Profissional)](docs/trilha-do-iniciante.md)**: 5 módulos progressivos ensinando o que pedir para a IA e como construir sistemas passo a passo.
+- 🔍 **[Guia Anti-Alucinação](docs/guia-anti-alucinacao.md)**: O checklist visual de 5 minutos para qualquer pessoa auditar se a IA entregou código seguro.
+- 💡 **[Guia de Prompts Prontos](docs/guia-de-prompts-para-iniciantes.md)**: Modelos de prompts prontos para copiar, colar e obter respostas perfeitas.
+- ⚖️ **[Caso Prático: Antes e Depois](examples/antes-e-depois.md)**: Comparativo lado a lado entre o código vulnerável que a internet ensina e o código profissional da skill.
+
+---
+
+## ⚡ Modos Operacionais da Skill
+
+Quando esta skill está ativa, o agente responde de forma especializada aos seguintes comandos:
 
 | Comando / Intenção | Descrição |
 | :--- | :--- |
@@ -35,18 +57,12 @@ Quando esta skill está ativa, o agente responde de forma especializada aos segu
 
 ---
 
-## 📖 Para Iniciantes e Leigos
-- 🌟 **[Guia de Prompts Prontos para Iniciantes](docs/guia-de-prompts-para-iniciantes.md)**: Modelos de perguntas para copiar, colar e criar sistemas completos com auxílio da IA sem medo de errar.
-- 🔍 **[Caso Prático: Antes e Depois](examples/antes-e-depois.md)**: Veja como a skill transforma códigos inseguros e antigos em código profissional de nível sênior.
-
----
-
 ## 📚 Base de Conhecimento e Referências
 
-O repositório inclui guias estruturados e atemporais na pasta `references/`:
+Guias canônicos na pasta `references/`:
 
 ### Core da Linguagem e Boas Práticas
-- **[Padrões Oficiais de Desenvolvimento](references/padroes-de-desenvolvimento.md)**: Regras de sintaxe, tipagem estrita, retorno antecipado e estilo de código.
+- **[Padrões Oficiais de Desenvolvimento](references/padroes-de-desenvolvimento.md)**: Sintaxe, tipagem estrita, early return e PSR-12.
 - **[Guia de Segurança Essencial](references/seguranca-essencial.md)**: PDO contra SQLi, `htmlspecialchars`, `password_hash`, sessões e upload com Fileinfo.
 - **[POO e Recursos Modernos](references/poo-e-recursos-modernos.md)**: Constructor Promotion, classes `readonly`, Enums, `match` e Generators.
 - **[Banco de Dados com PDO](references/banco-de-dados-pdo.md)**: Conexão resiliente, transações atômicas e consultas preparadas.
@@ -55,32 +71,29 @@ O repositório inclui guias estruturados e atemporais na pasta `references/`:
 - **[Índice Geral do Manual Oficial](references/indice-geral-manual-ptbr.md)**: Catálogo completo de links diretos de todas as seções do manual pt-BR.
 
 ### Ecossistema Profissional e Engenharia de Software
-- **[Composer e Autoloading PSR-4](references/composer-e-autoloading.md)**: Estrutura padrão de projetos, gerenciamento de dependências e otimização em produção.
+- **[Composer e Autoloading PSR-4](references/composer-e-autoloading.md)**: Estrutura padrão de projetos, dependências e deploy otimizado.
 - **[APIs RESTful e Manipulação de JSON](references/apis-rest-e-json.md)**: Endpoints REST nativos, `json_validate()`, status codes HTTP, CORS e cURL.
-- **[Configuração e Ambiente](references/configuracao-e-ambiente.md)**: Separação de código e ambiente, arquivos `.env`, segurança de credenciais e fail-fast.
-- **[Testes Automatizados e Análise Estática](references/testes-e-analise-estatica.md)**: Testes unitários com PHPUnit e análise estática rigorosa de tipos com PHPStan.
+- **[Configuração e Ambiente](references/configuracao-e-ambiente.md)**: Separação de código e ambiente, arquivos `.env` e segurança de credenciais.
+- **[Testes Automatizados e Análise Estática](references/testes-e-analise-estatica.md)**: Testes unitários com PHPUnit e análise estática de tipos com PHPStan.
 
 ---
 
 ## 🚀 Como Usar no seu Projeto
 
-### No Claude Code
-Abra o repositório diretamente no Claude Code. O arquivo `CLAUDE.md` importa automaticamente as instruções do `AGENTS.md`.
-
-### No Antigravity IDE
-O Antigravity reconhece o arquivo `AGENTS.md` e a pasta de skills nativamente ao abrir o workspace.
-
-### No Cursor
-O Cursor lê automaticamente o arquivo `.cursorrules` na raiz do projeto.
-
-### Como Submódulo Git em Qualquer Projeto
-Para que sua IA consulte esta skill dentro de outro projeto, adicione este repositório como submódulo:
-```bash
-git submodule add https://github.com/suportebahia/php-doc-pt-br.git .skills/php-doc-pt-br
-```
+- **No Claude Code:** Abra o projeto (o `CLAUDE.md` importa `AGENTS.md` automaticamente).
+- **No Antigravity IDE:** Reconhece `AGENTS.md` e a pasta de skills nativamente.
+- **No Cursor / Windsurf:** Carrega as regras automaticamente via `.cursorrules`.
+- **Como Submódulo Git:**
+  ```bash
+  git submodule add https://github.com/suportebahia/php-doc-pt-br.git .skills/php-doc-pt-br
+  ```
 
 ---
 
-## 📜 Licença
+## 🏛️ Governança e Contribuição
 
-Distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto é mantido de forma aberta e transparente com a comunidade PHP:
+- 🤝 **[Guia de Contribuição](CONTRIBUTING.md)**: Como sugerir guias e adicionar testes de validação.
+- 🛡️ **[Política de Segurança](SECURITY.md)**: Como reportar fragilidades de forma responsável.
+- 📜 **[Código de Conduta](CODE_OF_CONDUCT.md)**: Diretrizes de respeito e acolhimento comunitário.
+- ⚖️ **[Licença MIT](LICENSE)**: Código livre e reutilizável por qualquer pessoa ou empresa.
