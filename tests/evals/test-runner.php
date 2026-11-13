@@ -97,6 +97,49 @@ try {
         unlink($marker);
     }
     check($liveCode === 1 && !$markerCreated, 'metacaracteres são passados como argumento literal, sem execução pelo shell');
+
+    $largeOutputCommand = json_encode(
+        [PHP_BINARY, '-r', 'fwrite(STDOUT, str_repeat("o", 700000)); fwrite(STDERR, str_repeat("e", 400000));'],
+        JSON_THROW_ON_ERROR
+    );
+    [$outputLimitCode, $outputLimitText] = runProcess([
+        PHP_BINARY,
+        $runner,
+        '--live',
+        '--case=api-rest-json',
+        '--agent-command-json=' . $largeOutputCommand,
+    ]);
+    check(
+        $outputLimitCode === 1 && str_contains($outputLimitText, 'O agente excedeu o limite de saída de 1 MiB.'),
+        'stdout e stderr compartilham um limite de saída de 1 MiB'
+    );
+
+    $timeoutMarker = sys_get_temp_dir() . '/php-doc-pt-br-timeout-' . bin2hex(random_bytes(6));
+    $timeoutCommand = json_encode(
+        [PHP_BINARY, '-r', 'usleep(2500000); file_put_contents($argv[1], "alive");', $timeoutMarker],
+        JSON_THROW_ON_ERROR
+    );
+    try {
+        [$timeoutCode, $timeoutText] = runProcess([
+            PHP_BINARY,
+            $runner,
+            '--live',
+            '--case=api-rest-json',
+            '--timeout-seconds=1',
+            '--agent-command-json=' . $timeoutCommand,
+        ]);
+        usleep(1_700_000);
+        check(
+            $timeoutCode === 1
+                && str_contains($timeoutText, 'O agente excedeu o limite de 1 segundo.')
+                && !file_exists($timeoutMarker),
+            'o processo live é encerrado ao atingir o timeout reduzido'
+        );
+    } finally {
+        if (is_file($timeoutMarker)) {
+            unlink($timeoutMarker);
+        }
+    }
 } catch (Throwable $exception) {
     fwrite(STDERR, "Falha no teste do runner: {$exception->getMessage()}\n");
     exit(1);

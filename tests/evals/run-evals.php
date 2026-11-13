@@ -278,7 +278,7 @@ final class SkillEvalRunner
     {
         echo "[Verificando] {$case['titulo']}...\n";
         if ($options['live']) {
-            $code = $this->getLiveResponse($case, $options['agent_command']);
+            $code = $this->getLiveResponse($case, $options['agent_command'], $options['timeout_seconds']);
             if ($code === null) {
                 $this->fail("O agente não produziu resposta válida para '{$case['id']}'.");
                 return;
@@ -307,7 +307,35 @@ final class SkillEvalRunner
         }
     }
 
-    private function getLiveResponse(array $case, array $command): ?string
+    /** Captura saída incrementalmente e mantém o limite combinado de memória do runner. */
+    private function captureAvailableOutput(array $pipes, string &$stdout, string &$stderr): bool
+    {
+        do {
+            $readAny = false;
+            foreach ([1, 2] as $streamIndex) {
+                $remaining = self::MAX_OUTPUT_BYTES - strlen($stdout) - strlen($stderr);
+                $chunk = fread($pipes[$streamIndex], min(8192, $remaining + 1));
+                if ($chunk === false || $chunk === '') {
+                    continue;
+                }
+
+                $readAny = true;
+                if ($streamIndex === 1) {
+                    $stdout .= $chunk;
+                } else {
+                    $stderr .= $chunk;
+                }
+
+                if (strlen($stdout) + strlen($stderr) > self::MAX_OUTPUT_BYTES) {
+                    return true;
+                }
+            }
+        } while ($readAny);
+
+        return false;
+    }
+
+    private function getLiveResponse(array $case, array $command, int $timeoutSeconds): ?string
     {
         if (!function_exists('proc_open')) {
             fwrite(STDERR, "proc_open() não está disponível; modo live indisponível.\n");
@@ -339,15 +367,13 @@ final class SkillEvalRunner
         stream_set_blocking($pipes[2], false);
         $stdout = '';
         $stderr = '';
-        $deadline = microtime(true) + self::LIVE_TIMEOUT_SECONDS;
+        $deadline = microtime(true) + $timeoutSeconds;
         $exitCode = null;
         $timedOut = false;
         $tooMuchOutput = false;
 
         while (true) {
-            $stdout .= stream_get_contents($pipes[1]) ?: '';
-            $stderr .= stream_get_contents($pipes[2]) ?: '';
-            if (strlen($stdout) + strlen($stderr) > self::MAX_OUTPUT_BYTES) {
+            if ($this->captureAvailableOutput($pipes, $stdout, $stderr)) {
                 $tooMuchOutput = true;
                 proc_terminate($process, 9);
                 break;
@@ -371,14 +397,16 @@ final class SkillEvalRunner
             usleep(50_000);
         }
 
-        $stdout .= stream_get_contents($pipes[1]) ?: '';
-        $stderr .= stream_get_contents($pipes[2]) ?: '';
+        if (!$timedOut && !$tooMuchOutput) {
+            $tooMuchOutput = $this->captureAvailableOutput($pipes, $stdout, $stderr);
+        }
         fclose($pipes[1]);
         fclose($pipes[2]);
         $closeCode = proc_close($process);
 
         if ($timedOut) {
-            fwrite(STDERR, "O agente excedeu o limite de 60 segundos.\n");
+            $unit = $timeoutSeconds === 1 ? 'segundo' : 'segundos';
+            fwrite(STDERR, "O agente excedeu o limite de {$timeoutSeconds} {$unit}.\n");
             return null;
         }
         if ($tooMuchOutput) {
@@ -423,6 +451,7 @@ final class SkillEvalRunner
             'case_filter' => null,
             'agent_command_json' => null,
             'agent_command' => [],
+            'timeout_seconds' => self::LIVE_TIMEOUT_SECONDS,
         ];
         foreach ($arguments as $argument) {
             if ($argument === '--validate-only') {
@@ -431,6 +460,14 @@ final class SkillEvalRunner
                 $options['live'] = true;
             } elseif (str_starts_with($argument, '--case=')) {
                 $options['case_filter'] = substr($argument, 7);
+            } elseif (str_starts_with($argument, '--timeout-seconds=')) {
+                $timeout = substr($argument, strlen('--timeout-seconds='));
+                if (preg_match('/\A[1-9][0-9]*\z/D', $timeout) !== 1 || (int) $timeout > self::LIVE_TIMEOUT_SECONDS) {
+                    throw new InvalidArgumentException(
+                        '--timeout-seconds deve ser um inteiro entre 1 e ' . self::LIVE_TIMEOUT_SECONDS . '.'
+                    );
+                }
+                $options['timeout_seconds'] = (int) $timeout;
             } elseif (str_starts_with($argument, '--agent-command-json=')) {
                 $options['agent_command_json'] = substr($argument, strlen('--agent-command-json='));
             } elseif (str_starts_with($argument, '--')) {
@@ -439,6 +476,9 @@ final class SkillEvalRunner
         }
         if ($options['validate_only'] && $options['live']) {
             throw new InvalidArgumentException('--validate-only e --live não podem ser usados em conjunto.');
+        }
+        if (!$options['live'] && $options['timeout_seconds'] !== self::LIVE_TIMEOUT_SECONDS) {
+            throw new InvalidArgumentException('--timeout-seconds só pode ser usado com --live.');
         }
         return $options;
     }
