@@ -4,7 +4,7 @@ Este repositório contém instruções e exemplos de desenvolvimento PHP. Uma fa
 
 ## Versões e compatibilidade
 
-Os exemplos gerais deste repositório usam PHP 8.2 como base, salvo indicação explícita. Isso não significa que todas as versões PHP suportadas pelo projeto oficial estejam cobertas por todos os exemplos. Consulte a [política oficial de versões suportadas](https://www.php.net/supported-versions.php) e confirme a compatibilidade das ferramentas e dependências usadas.
+Os exemplos gerais deste repositório ainda usam PHP 8.2 como base, salvo indicação explícita. O plano proposto é elevar o piso para PHP 8.4 em 01/01/2027, antes do fim do suporte de segurança do PHP 8.2 em 31/12/2026; até que uma mudança separada seja aprovada e mesclada, o baseline continua sendo 8.2. Isso não significa que todas as versões oficiais estejam cobertas por todos os exemplos. Consulte a [política oficial de versões suportadas](https://www.php.net/supported-versions.php) e confirme a compatibilidade das ferramentas e dependências usadas.
 
 ## Como reportar uma vulnerabilidade no repositório
 

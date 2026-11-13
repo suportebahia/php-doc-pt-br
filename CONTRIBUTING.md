@@ -8,7 +8,7 @@ Inclua o contexto e a versão mínima do PHP, framework ou dependências quando 
 
 ## Alterações nos testes
 
-Os casos em `tests/evals/` são verificações textuais simples. Ao acrescentar um caso, descreva o que o padrão efetivamente verifica; não o trate como prova semântica de segurança. O runner também analisa a sintaxe dos blocos PHP em Markdown com `token_get_all(..., TOKEN_PARSE)`, sem executá-los. Não execute fixtures nem códigos de exemplo durante o CI.
+Os casos em `tests/evals/` são verificações textuais simples. Ao acrescentar um caso, descreva o que o padrão efetivamente verifica; não o trate como prova semântica de segurança. O runner também analisa a sintaxe dos blocos PHP em Markdown com `token_get_all(..., TOKEN_PARSE)`, sem executá-los. O CI executa apenas o caso funcional explicitamente allowlistado em `tests/functional/json-object-decoder.php`, que carrega um helper puro sem I/O; não execute fixtures nem outros blocos de exemplo durante o CI. Novos testes funcionais devem apontar para caminhos fixos revisados, rodar em processo separado e declarar os efeitos que podem ocorrer. Isso não constitui sandbox.
 
 Execute antes de submeter:
 

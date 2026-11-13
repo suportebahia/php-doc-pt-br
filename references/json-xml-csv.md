@@ -6,21 +6,7 @@ Escolha o parser conforme o contrato e o formato esperado. Limite o tamanho ante
 
 Use `json_decode()` com `JSON_THROW_ON_ERROR` e profundidade adequada. Decodificar em objetos (`associative: false`) pode ajudar a distinguir objeto de lista no nível superior; escolha deliberadamente como representar valores ausentes, `null`, inteiros grandes e números.
 
-```php
-<?php
-
-declare(strict_types=1);
-
-try {
-    $valor = json_decode($corpo, false, 64, JSON_THROW_ON_ERROR);
-} catch (JsonException $erro) {
-    throw new InvalidArgumentException('JSON inválido.', previous: $erro);
-}
-
-if (!$valor instanceof stdClass) {
-    throw new InvalidArgumentException('Era esperado um objeto JSON.');
-}
-```
+A implementação selecionada [`decodeJsonObject()`](../examples/json-object-decoder.php) rejeita JSON malformado e valores de topo que não sejam objetos. O CI executa apenas um teste funcional específico dessa implementação, em processo PHP separado; não executa arbitrariamente blocos de Markdown nem as demais fixtures. O chamador ainda deve limitar o tamanho do corpo e validar schema e regras de domínio.
 
 No baseline PHP 8.2, `json_validate()` não está disponível nativamente. Em PHP 8.3+, ela pode verificar sintaxe sem produzir o valor, mas não valida o schema nem o domínio.
 
