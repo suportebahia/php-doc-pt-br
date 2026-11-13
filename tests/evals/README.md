@@ -48,9 +48,49 @@ php tests/evals/run-evals.php --live --agent-cmd="claude -p"
 export AI_EVAL_CMD="claude -p"
 php tests/evals/run-evals.php --live
 
-# Exemplo 3: Usando script wrapper customizado (ex: cURL para OpenAI, Gemini ou Ollama):
+# Exemplo 3: Usando script wrapper customizado (ex: cURL genérico):
 php tests/evals/run-evals.php --live --agent-cmd="bash ./scripts/consultar-llm.sh"
 ```
+
+#### Exemplo 4: Ollama (modelo local, custo zero de tokens)
+```bash
+php tests/evals/run-evals.php --live --agent-cmd="ollama run llama3.1"
+```
+O `ollama run` recebe o prompt como argumento e imprime o código no STDOUT. Ideal para benchmark local sem custo de API.
+
+#### Exemplo 5: OpenAI via wrapper cURL
+Crie `scripts/consultar-openai.sh`:
+```bash
+#!/bin/bash
+PROMPT="$1"
+curl -s https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"model\":\"gpt-4o\",\"messages\":[{\"role\":\"user\",\"content\":$(jq -n --arg p "$PROMPT" '$p')}]}" \
+  | jq -r '.choices[0].message.content'
+```
+Depois:
+```bash
+php tests/evals/run-evals.php --live --agent-cmd="bash ./scripts/consultar-openai.sh"
+```
+
+### ⏱️ Timeout e Robustez
+
+O `shell_exec()` não tem timeout nativo. Se o agente travar (ex: erro de rede, autenticação pendente), o harness trava junto. Para evitar isso, envolva o comando com `timeout`:
+
+```bash
+php tests/evals/run-evals.php --live --agent-cmd="timeout 60 claude -p"
+```
+O comando `timeout 60` encerra o processo após 60 segundos e retorna exit code 124, que o harness trata como falha (resposta null ou vazia).
+
+### ⚠️ Limitações do Modo --live
+
+O modo `--live` valida a resposta bruta da IA contra `must_contain`, `must_not_contain` e `patterns_not_match`. Isso pode gerar **falsos positivos** em dois cenários:
+
+1. **Menções em comentários**: se a IA gerar um comentário como `// Nunca use md5() para senhas`, a asserção `must_not_contain: ["md5("]` vai falhar, mesmo que o código esteja correto.
+2. **Explicações didáticas**: se o prompt pedir explicação, a IA pode citar `mysql_*` como anti-padrão, e a asserção `must_not_contain: ["mysql_"]` vai falhar.
+
+**Recomendação**: para o modo `--live`, prefira prompts que peçam **apenas o código**, sem explicações. Para prompts didáticos, use o modo fixture (CI) e valide a explicação manualmente.
 
 ---
 

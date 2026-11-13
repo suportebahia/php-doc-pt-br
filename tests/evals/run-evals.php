@@ -151,7 +151,7 @@ final class DynamicSkillEvalRunner
             $codigo = $this->obterRespostaLiveIA($caso, $opcoes['agent_cmd']);
             if ($codigo === null) {
                 $this->falhou++;
-                $this->erros[] = "Falha ao obter resposta ao vivo da IA para o caso: {$titulo}";
+                $this->erros[] = "IA não retornou resposta (vazia ou falha na execução) para o caso: {$titulo}";
                 return;
             }
         } else {
@@ -222,7 +222,11 @@ final class DynamicSkillEvalRunner
         echo "  ⚡ Consultando agente ao vivo: {$comando}...\n";
         $saida = shell_exec($comandoCompleto);
 
-        return $saida !== null ? (string) $saida : null;
+        if ($saida === null || trim($saida) === '') {
+            return null;
+        }
+
+        return (string) $saida;
     }
 
     private function parseArgumentos(array $argv): array
