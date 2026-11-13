@@ -66,4 +66,5 @@ jobs:
                 exit(1);
             }
             echo "Todos os links canônicos foram validados com sucesso!\n";
+            exit(0);
           '
