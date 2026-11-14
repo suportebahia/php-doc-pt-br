@@ -50,5 +50,5 @@ Retornos antecipados podem reduzir aninhamento, mas não são obrigatórios em t
 
 Em produção, configure a exibição e o registro de erros de acordo com o ambiente, sem expor detalhes internos ao usuário. Proteja os logs e evite incluir segredos ou dados pessoais desnecessários.
 
-- Fonte: [Tratamento de erros e exceções](https://www.php.net/manual/pt_BR/language.errors.php)
+- Fonte: [Tratamento de erros e exceções](https://www.php.net/manual/pt_BR/language.error-handling.php)
 - Fonte: [Segurança e tratamento de erros](https://www.php.net/manual/pt_BR/security.errors.php)

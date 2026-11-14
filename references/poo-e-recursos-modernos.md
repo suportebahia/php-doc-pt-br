@@ -154,7 +154,7 @@ Fibers, introduzidas no PHP 8.1, são primitivas de suspensão e retomada de exe
 
 Evite capturar `Throwable` indiscriminadamente e continuar como se a operação tivesse sido concluída. Exceções de domínio, tipos de erro e política de registro dependem do sistema.
 
-- Fontes: [hierarquia de erros](https://www.php.net/manual/pt_BR/language.errors.php), [`Throwable`](https://www.php.net/manual/pt_BR/class.throwable.php)
+- Fontes: [hierarquia de erros](https://www.php.net/manual/pt_BR/language.error-handling.php), [`Throwable`](https://www.php.net/manual/pt_BR/class.throwable.php)
 
 ## Interoperabilidade
 
