@@ -29,4 +29,10 @@ Mantenha os textos genéricos e claros. Remova afirmações dependentes de sess�
 
 ## Ferramentas
 
-O suporte a `AGENTS.md`, `CLAUDE.md`, `.cursorrules` ou outros arquivos depende da ferramenta e da respetiva versão. Não prometa que uma ferramenta carrega automaticamente estas instruções sem confirmar na documentação da própria ferramenta.
+Instruções de contexto (como `AGENTS.md`, `CLAUDE.md` e regras de IDE) não são a mesma coisa que skills reutilizáveis. O suporte, a descoberta automática, a precedência e a sintaxe dependem do produto, da versão e da configuração; não prometa carregamento universal.
+
+- Claude Code usa `CLAUDE.md` como instrução de projeto; `@AGENTS.md` pode importar o arquivo compartilhado quando a funcionalidade estiver disponível. Skills precisam estar em diretório de descoberta, como `.claude/skills/<nome>/SKILL.md` no projeto ou `~/.claude/skills/<nome>/SKILL.md` no usuário. Um `SKILL.md` avulso na raiz não equivale a instalação.
+- Cursor documenta regras em `.cursor/rules/*.mdc`; use `AGENTS.md` somente se a versão/configuração adotada o suportar. `.cursorrules` é legado, com migração recomendada para regras `.mdc` ou `AGENTS.md`, conforme o caso.
+- Antigravity documenta regras e skills separadamente. Skills podem ser instaladas em `.agents/skills/<nome>/SKILL.md`; confirme os caminhos e a disponibilidade na documentação da versão em uso.
+
+Consulte as páginas oficiais indicadas no README antes de integrar estes arquivos. O conteúdo deste repositório não comprova por si só que uma ferramenta o detectou ou aplicou.

@@ -1,5 +1,7 @@
-# Contexto opcional para ferramentas compatíveis com regras do Cursor
+# LEGADO — Contexto para versões do Cursor que ainda aceitem `.cursorrules`
 
-Se esta ferramenta e sua versão carregarem este arquivo, consulte `AGENTS.md`, `SKILL.md` e apenas as referências relevantes para a tarefa. Não presuma que outras IDEs reconhecem este formato.
+O Cursor documenta `.cursorrules` como formato legado. Para novas configurações, migre estas orientações para `.cursor/rules/*.mdc` ou `AGENTS.md`, conforme o escopo e o suporte da versão instalada. Este arquivo pode deixar de ser considerado; não presuma que Cursor ou outras IDEs o carreguem automaticamente. Consulte [regras do Cursor](https://cursor.com/help/customization/rules) e [documentação de regras](https://cursor.com/docs/rules).
+
+Se a versão em uso ainda carregar este arquivo, consulte `AGENTS.md` e apenas as referências relevantes para a tarefa. `SKILL.md` é uma skill distinta, não uma regra do Cursor; instale-a em um diretório de skills que a ferramenta suporte, caso necessário.
 
 Respeite a versão mínima de PHP, o framework, a arquitetura, as dependências e as convenções do projeto aberto. Trate as referências como orientação, não como regras universais. Confirme afirmações versionadas em documentação oficial. Em revisões de segurança, indique evidências e limites; não prometa que o código está livre de vulnerabilidades.

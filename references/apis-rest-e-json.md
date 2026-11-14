@@ -73,7 +73,7 @@ Usar `stdClass` aqui preserva a distinção de um objeto JSON no nível superior
 
 `400` para sintaxe inválida e `422` para conteúdo válido que não atende ao contrato são escolhas comuns, não uma regra obrigatória para toda API. Siga o contrato existente. Não devolva exceções, rastros, SQL, tokens ou segredos ao cliente; mantenha detalhes de diagnóstico apenas em logs protegidos.
 
-CORS é uma política aplicada pelo navegador, não autenticação nem autorização. Só configure quando clientes de outras origens precisarem acessar a API. Use origens explícitas e responda ao preflight conforme métodos e cabeçalhos aceitos; não combine credenciais com origem curinga.
+CORS governa se scripts de navegador podem compartilhar respostas com uma origem diferente; não substitui autenticação nem autorização. Só configure quando clientes de outras origens precisarem acessar a API. Quando houver uso cross-origin, trate também as requisições preflight `OPTIONS` conforme métodos e cabeçalhos aceitos, por exemplo em um ramo ou middleware antes da rejeição de métodos não aceitos. Use origens explícitas e não combine credenciais com origem curinga. O exemplo POST-only acima não implementa essa política; isso não é um problema se o endpoint não precisar de acesso cross-origin.
 
 Para uma API pública ou interoperável, RFC 9457 (`application/problem+json`) é uma opção de formato de erro. Se adotada, mantenha coerência entre o status HTTP e o campo `status` do documento.
 
@@ -81,7 +81,7 @@ Para uma API pública ou interoperável, RFC 9457 (`application/problem+json`) �
 
 ## Consumir APIs com cURL
 
-O erro de transporte (DNS, conexão ou timeout) é diferente de uma resposta HTTP 4xx/5xx. Não interprete `curl_exec()` sem erro de transporte como prova de sucesso de negócio; verifique status, cabeçalhos e corpo conforme o contrato.
+O erro de transporte (DNS, conexão ou timeout) é diferente de uma resposta HTTP 4xx/5xx: `curl_exec()` retornar `false` indica falha de transporte, enquanto um status HTTP de erro continua sendo uma resposta recebida. Não interprete a ausência de erro de transporte como prova de sucesso de negócio; verifique status, cabeçalhos e corpo conforme o contrato.
 
 ```php
 <?php
@@ -95,7 +95,7 @@ if ($handle === false) {
 }
 
 $optionsConfiguradas = curl_setopt_array($handle, [
-    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_RETURNTRANSFER => true, // acumula a resposta inteira em memória, sem limite de bytes
     CURLOPT_CONNECTTIMEOUT => 3,
     CURLOPT_TIMEOUT => 10,
     CURLOPT_SSL_VERIFYPEER => true,
@@ -122,6 +122,8 @@ if ($statusHttp < 200 || $statusHttp >= 300) {
 
 // Decodifique e valide $corpoResposta conforme o contrato da API.
 ```
+
+`CURLOPT_RETURNTRANSFER` não impõe limite cumulativo de bytes à resposta. Se ela não for estritamente pequena e limitada pelo contrato, use streaming ou um callback que conte os bytes acumulados e interrompa a transferência ao exceder um teto apropriado.
 
 A extensão cURL e algumas opções dependem da instalação de PHP/libcurl. Não desative verificação TLS para contornar erro de certificado. Se ativar redirects, valide cada destino e não encaminhe credenciais a um host diferente sem política explícita.
 

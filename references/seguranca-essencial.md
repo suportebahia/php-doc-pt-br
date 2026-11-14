@@ -49,9 +49,9 @@ session.cookie_samesite = Lax
 
 `session.cookie_secure = 1` pressupõe HTTPS; trate desenvolvimento local e terminação TLS no proxy conforme a plataforma.
 
-Depois de autenticar ou elevar privilégios, considere a regeneração do identificador. A política de remoção da sessão antiga depende do handler, concorrência e fluxo; `session_regenerate_id(true)` não deve ser apresentado como solução universal para toda situação. Frameworks podem fornecer mecanismos próprios.
+Depois de autenticar com sucesso — e após autorizar qualquer elevação de privilégio, mas antes de usar a sessão no novo nível de acesso — regenere o identificador. Planeje a transição e o tratamento da sessão anterior conforme o handler e as requisições concorrentes; `session_regenerate_id(true)` não é uma solução universal, e frameworks podem fornecer mecanismos próprios. Valide a troca, a invalidação esperada e o comportamento concorrente no framework/handler real.
 
-Em aplicações autenticadas por cookie, proteja operações que alteram estado com CSRF do framework ou token imprevisível validado no servidor. Não use GET para alterar estado. CORS e `SameSite` são controles diferentes e não substituem a validação do token quando o fluxo precisa dela.
+Em aplicações autenticadas por cookie, proteja operações que alteram estado com CSRF do framework ou token imprevisível validado no servidor. Não use GET para alterar estado. CORS e `SameSite` são controles diferentes e não substituem a validação do token quando o fluxo precisa dela. Para codificação de saída HTML, veja [SQL, saída HTML e dados externos](#sql-saída-html-e-dados-externos); para o contexto HTTP de cookies e sessões, consulte [Formulários, sessões e servidor](aplicacoes-web-e-http.md#formulários-sessões-e-servidor).
 
 Exemplo mínimo de token sincronizador, supondo que a sessão já tenha sido iniciada com configuração adequada:
 

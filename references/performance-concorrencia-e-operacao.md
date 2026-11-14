@@ -20,7 +20,7 @@ Filas e workers normalmente dependem de broker, biblioteca ou framework. Documen
 
 ## Memória, timeout e observabilidade
 
-`memory_limit` limita alocações do script PHP, mas não é o orçamento total do processo, container ou host. Timeouts também podem existir no cliente, proxy, FPM, banco e broker. Defina deadline coerente e trate cancelamento/timeout em cada dependência.
+`memory_limit` não representa o orçamento total do processo, container ou host. Para patch levels recentes das branches PHP 8.2, 8.3, 8.4 e 8.5, o manual descreve essa diretiva como limite *soft*, não como teto absoluto em todas as circunstâncias; nas versões cobertas pela mesma documentação, `memory_hard_limit_percent` é o mecanismo de limite *hard* adicional. Não presuma essas semânticas em outros patch levels ou runtimes sem confirmar a documentação da versão efetivamente instalada e sua configuração ([manual de configuração](https://www.php.net/manual/en/ini.core.php)). Os limites do container e do host continuam sendo limites distintos. Timeouts também podem existir no cliente, proxy, FPM, banco e broker. Defina deadline coerente e trate cancelamento/timeout em cada dependência.
 
 Registre logs com contexto útil e sem segredos. Métricas de latência, erros, profundidade/idade de fila, memória e reinícios ajudam a distinguir causas. Proteja status pages, slowlogs e dashboards operacionais.
 

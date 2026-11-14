@@ -23,7 +23,9 @@ class UploadSeguro
         }
 
         $destino = '/uploads/' . bin2hex(random_bytes(16)) . '.bin';
-        move_uploaded_file($arquivoHttp['tmp_name'], $destino);
+        if (!move_uploaded_file($arquivoHttp['tmp_name'], $destino)) {
+            throw new RuntimeException('Não foi possível armazenar o arquivo.');
+        }
 
         return $destino;
     }

@@ -4,7 +4,7 @@ Strings PHP são sequências de bytes; operações comuns de string não necessa
 
 ## Unicode e codificação
 
-Não tente adivinhar a codificação de uma entrada sem um contrato. Valide bytes para a codificação esperada e converta apenas quando conhecer a origem. `mb_strlen()` mede unidades segundo a codificação, que não equivalem necessariamente a grafemas exibidos na tela.
+Validar, converter e normalizar são operações distintas. Validar UTF-8 verifica se os bytes formam texto UTF-8 válido, sem recodificá-los. Converter muda a codificação dos bytes e só deve ser feito quando a codificação de origem for conhecida; não tente adivinhá-la sem um contrato. Normalizar transforma a representação Unicode para uma forma escolhida, não valida nem converte a codificação. `mb_strlen()` mede unidades segundo a codificação, que não equivalem necessariamente a grafemas exibidos na tela.
 
 Normalização Unicode pode ser necessária para comparação, busca ou identificadores, mas a forma escolhida depende do domínio. Não normalize senhas, assinaturas ou dados cujo formato original precise ser preservado sem uma decisão explícita.
 
@@ -19,7 +19,8 @@ Normalização Unicode pode ser necessária para comparação, busca ou identifi
 
 declare(strict_types=1);
 
-$resultado = preg_match('/\A[A-Z]{2}\d{6}\z/', $codigo);
+$codigo = 'AB123456'; // Duas letras maiúsculas e seis dígitos ASCII.
+$resultado = preg_match('/\A[A-Z]{2}[0-9]{6}\z/', $codigo);
 if ($resultado === false) {
     throw new RuntimeException('Falha ao executar a expressão regular.');
 }

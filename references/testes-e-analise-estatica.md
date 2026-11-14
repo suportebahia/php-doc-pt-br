@@ -74,4 +74,6 @@ Fuzzing, testes baseados em propriedades e mutation testing podem ser úteis sel
 
 A integração contínua deste repositório verifica sintaxe de arquivos PHP selecionados, casos textuais, segurança do runner e links. O runner também pode validar a sintaxe dos blocos de código PHP nos documentos; ele não executa esses exemplos. Essa aprovação não é uma suíte de testes de aplicação, nem prova segurança, comportamento em produção, cobertura ou compatibilidade de dependências.
 
+Os links PHPUnit abaixo são referências versionadas para a série 13.4, que requer PHP 8.4 ou superior. Esse requisito do PHPUnit é distinto do baseline PHP 8.2 deste repositório: escolha uma versão do PHPUnit suportada pelo PHP do seu projeto, consultando a lista oficial; não use PHPUnit 13.4 com PHP 8.2.
+
 - Fontes: [PHPUnit: escrever testes](https://docs.phpunit.de/en/13.4/writing-tests-for-phpunit.html), [PHPUnit: cobertura](https://docs.phpunit.de/en/13.4/code-coverage.html), [versões PHPUnit suportadas](https://phpunit.de/supported-versions.html), [PHPStan](https://phpstan.org/user-guide/getting-started), [níveis PHPStan](https://phpstan.org/user-guide/rule-levels), [PHP-FIG PSR-12](https://www.php-fig.org/psr/psr-12/)

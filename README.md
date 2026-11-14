@@ -6,7 +6,8 @@ Use-o como apoio, confirmando detalhes no [manual oficial do PHP](https://www.ph
 
 ## O que contém
 
-- `SKILL.md`, `AGENTS.md` e `.cursorrules`: instruções que algumas ferramentas de programação com IA podem carregar automaticamente. Leia-as antes de as ativar num projeto.
+- `AGENTS.md`, `CLAUDE.md` e `.cursor/rules/`: arquivos de instruções/regras, cuja descoberta e precedência dependem da ferramenta e da versão. `.cursorrules` é um formato legado do Cursor.
+- `SKILL.md`: skill reutilizável; o arquivo na raiz deste repositório não é automaticamente descoberto por todas as ferramentas. Consulte abaixo os caminhos de instalação documentados.
 - `references/`: guias práticos sobre linguagem/POO, web/HTTP, segurança, bancos, Composer, frameworks, runtime, arquivos/dados, operação, testes e versões.
 - `docs/` e `examples/`: materiais didáticos e exemplos para revisão.
 - `docs/MATRIZ-COBERTURA.md`: triagem datada da relação entre as referências selecionadas e as seções imediatas do índice oficial; não representa paridade nem completude.
@@ -40,7 +41,21 @@ Os exemplos ainda usam PHP 8.2 como base, salvo indicação explícita em contr�
 
 ## Utilização em ferramentas de IA
 
-A forma de carregar instruções varia por ferramenta e versão. Consulte a documentação da ferramenta. Não presuma que qualquer IDE reconhece os mesmos nomes de arquivo, comandos ou formato. Para integrar o conteúdo num projeto, prefira copiar apenas as instruções relevantes ou fixar uma revisão específica como submódulo, em vez de acompanhar automaticamente alterações não revistas.
+A forma de carregar instruções e skills varia por ferramenta, versão e configuração. Instruções (por exemplo, `AGENTS.md`, `CLAUDE.md` e regras do Cursor) fornecem contexto ao projeto; skills são conjuntos de orientações reutilizáveis que precisam estar em um diretório de descoberta suportado. Não presuma carregamento automático, precedência, comandos ou formatos universais.
+
+Conforme os caminhos descritos na documentação oficial consultada, as opções incluem:
+
+- **Claude Code:** instruções do projeto em `CLAUDE.md`; este repositório usa `@AGENTS.md` para importar as instruções compartilhadas. Skills são descobertas em diretórios como `.claude/skills/<nome-da-skill>/SKILL.md` (projeto) ou `~/.claude/skills/<nome-da-skill>/SKILL.md` (usuário). A importação e a descoberta dependem da versão/configuração do Claude Code.
+- **Cursor:** prefira regras em `.cursor/rules/*.mdc`; `AGENTS.md` pode ser usado conforme suporte e configuração da versão. `.cursorrules` é legado: migre o conteúdo para regras `.mdc` ou para `AGENTS.md`, de acordo com o escopo desejado. Este arquivo não é uma skill.
+- **Antigravity:** instruções/regras e skills têm diretórios próprios; as skills podem ser instaladas em `.agents/skills/<nome-da-skill>/SKILL.md`. Use os caminhos e requisitos da versão instalada, conforme a documentação oficial do produto; este `SKILL.md` na raiz não indica que será descoberto.
+
+Fontes oficiais: [Claude Code — skills](https://docs.anthropic.com/en/docs/claude-code/skills) e [memória/instruções](https://docs.anthropic.com/en/docs/claude-code/memory); [Cursor — regras](https://cursor.com/help/customization/rules) e [documentação de regras](https://cursor.com/docs/rules); [Antigravity — regras](https://antigravity.google/docs/rules/) e [skills](https://antigravity.google/docs/skills/). Esses produtos evoluem: confirme os caminhos, disponibilidade e comportamento na documentação da versão que estiver usando.
+
+Para integrar este conteúdo, prefira copiar apenas as instruções relevantes ou fixar uma revisão específica como submódulo, em vez de acompanhar automaticamente alterações não revistas.
+
+## Proveniência e atribuição
+
+Se uma contribuição futura incluir material realmente derivado do Manual PHP, identifique junto ao conteúdo a fonte e o título, a URL, a licença aplicável e as alterações feitas. O Manual PHP é publicado sob CC BY 3.0 ou posterior; verifique os termos e a atribuição apropriados para o material concreto. Esta orientação é prospectiva: não afirma que tenha sido encontrada cópia indevida ou que conteúdo derivado já tenha sido identificado. A licença MIT do repositório não deve ser presumida como substituta da licença aplicável a material de terceiros.
 
 ## Contribuições
 

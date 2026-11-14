@@ -63,6 +63,14 @@ try {
         );
     }
 
+    [$unicodeDigitCode] = runProcess([
+        PHP_BINARY,
+        '-r',
+        'require $argv[1]; exit(\\PhpDocPtBr\\Examples\\matchReferenceCode("AB١٢٣٤٥٦") === 1 ? 0 : 1);',
+        dirname(__DIR__, 2) . '/examples/preg-match-result.php',
+    ]);
+    check($unicodeDigitCode === 0, 'o exemplo aceita seis dígitos decimais Unicode com /u');
+
     $casePath = $casesDirectory . '/zz-runner-path-' . bin2hex(random_bytes(6)) . '.json';
     $pathTraversalCase = [
         'id' => 'teste-path-traversal',

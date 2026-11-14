@@ -2,6 +2,8 @@
 
 Prompts claros costumam incluir o objetivo, o contexto do projeto, o resultado esperado e o nível de explicação desejado. Antes de pedir uma alteração concreta, informe a versão mínima do PHP, o framework, as dependências relevantes e o código relacionado.
 
+Estes exemplos são prompts para orientar uma conversa, não implementações nem auditorias completas; as respostas não garantem segurança ou correção. Revise as sugestões e valide-as no contexto do projeto.
+
 Substitua os trechos entre colchetes pelos dados do seu projeto. Se não souber uma informação, peça à IA que declare a suposição em vez de inventá-la.
 
 ## Exemplo: rever um fluxo de autenticação
@@ -14,7 +16,7 @@ Substitua os trechos entre colchetes pelos dados do seu projeto. Se não souber 
 
 ## Exemplo: criar ou rever uma API JSON
 
-> “Para [versão do PHP/framework], implemente o endpoint [contrato]. Use os códigos HTTP definidos pelo projeto, valide o formato do JSON e as regras de domínio, e não configure CORS se não for necessário. Indique os limites do exemplo e proponha testes para entradas válidas e inválidas.”
+> “Para [versão do PHP/framework], proponha uma solução para o endpoint [contrato]. Use os códigos HTTP definidos pelo projeto e valide o formato do JSON e as regras de domínio. Se clientes em navegadores precisarem acessar a API a partir de outra origem, explique que CORS controla o compartilhamento de respostas no navegador e não substitui autenticação nem autorização; nesse caso, pergunte quais origens são permitidas e quais métodos/cabeçalhos precisam ser considerados no preflight. Não presuma que CORS seja necessário em outros contextos. Indique os limites da proposta e sugira testes para entradas válidas e inválidas.”
 
 ## Exemplo: análise de segurança
 
@@ -22,7 +24,7 @@ Substitua os trechos entre colchetes pelos dados do seu projeto. Se não souber 
 
 ## Exemplo: entender uma função
 
-> “Explique a diferença entre `isset()`, `empty()` e `array_key_exists()` na versão de PHP que uso. Mostre exemplos pequenos, diga quando cada função é apropriada e inclua links para o manual oficial. Se houver alguma diferença entre a tradução pt-BR e a documentação em inglês, indique-a.”
+> “Explique a diferença entre `isset()`, `empty()` e `array_key_exists()` na versão de PHP que uso. Use exemplos contrastivos para uma chave ausente e para uma chave presente com `null`, `0`, `false`, string vazia (`''`) e string `'0'`; mostre o resultado de cada função em cada caso. Diga quando cada função é apropriada e inclua links para o manual oficial. Se houver alguma diferença entre a tradução pt-BR e a documentação em inglês, indique-a.”
 
 ## Dicas
 

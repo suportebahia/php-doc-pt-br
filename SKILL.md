@@ -14,6 +14,16 @@ Esta skill é um conjunto de orientações para agentes de IA. Ela não substitu
 
 Antes de recomendar ou escrever código, identifique, quando relevante, a versão mínima do PHP, extensões, dependências, framework, banco de dados e convenções já presentes no projeto. Se algum desses dados mudar a solução e não estiver disponível, pergunte ou declare a suposição. Não introduza recursos que exijam uma versão superior à declarada pelo usuário.
 
+## Instalação e descoberta por ferramenta
+
+Este `SKILL.md` está na raiz do repositório para leitura e distribuição; essa localização, por si só, não faz com que toda ferramenta o descubra ou carregue. Skills são diferentes de instruções de projeto, como `AGENTS.md` e `CLAUDE.md`, e precisam ser colocadas no caminho reconhecido pelo produto e pela versão em uso.
+
+- **Claude Code:** instale a skill em `.claude/skills/<nome>/SKILL.md` dentro do projeto. `CLAUDE.md` é o arquivo de instruções; `@AGENTS.md` pode importar instruções compartilhadas quando suportado.
+- **Antigravity:** a documentação do produto descreve skills em `.agents/skills/<nome>/SKILL.md`; regras/instruções são configuradas separadamente.
+- **Cursor:** use regras em `.cursor/rules/*.mdc` ou `AGENTS.md` conforme o suporte da versão. `.cursorrules` é legado e não é o formato de skill.
+
+Confirme os caminhos e o comportamento na documentação oficial da versão instalada. Fontes: [Claude Code — skills](https://docs.anthropic.com/en/docs/claude-code/skills), [Claude Code — memória/instruções](https://docs.anthropic.com/en/docs/claude-code/memory), [Cursor — regras](https://cursor.com/help/customization/rules) e [Antigravity — skills](https://antigravity.google/docs/skills/).
+
 ## Tipos de pedido
 
 Adapte a resposta à intenção do usuário:
