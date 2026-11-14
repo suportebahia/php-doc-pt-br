@@ -10,6 +10,8 @@ Inclua o contexto e a versão mínima do PHP, framework ou dependências quando 
 
 Separe três camadas ao descrever resultados: as verificações em `tests/evals/` comparam conteúdo textual e são heurísticas; `token_get_all(..., TOKEN_PARSE)` analisa a sintaxe dos blocos PHP em Markdown sem executá-los; e testes funcionais exercitam comportamento de fontes PHP selecionadas. O `tests/evals/test-runner.php` mantém uma allowlist explícita de testes funcionais e inicia cada caminho permitido num processo separado. Não acrescente descoberta por glob, execução de fixtures ou execução de snippets Markdown. Os testes atuais cobrem `json-object-decoder.php`, `strict-date-validation.php` e `preg-match-result.php`, usando apenas helpers puros e dados sintéticos. O CI não executa snippets Markdown nem uma avaliação `--live`; testes locais da opção `--live` usam apenas comandos sintéticos fixos e são omitidos com `CI=true`. Processos separados não constituem uma sandbox.
 
+Ao alterar `references/*.md`, reveja também as seções afetadas em `docs/MATRIZ-COBERTURA.md`; não atualize os hashes sem rever os estados e as justificações. Uma nova referência deve aparecer na matriz. `GOVERNANCE.md` descreve os critérios e a revisão esperada.
+
 Execute antes de submeter:
 
 ```bash
@@ -17,6 +19,8 @@ php tests/evals/run-evals.php --validate-only
 php tests/evals/run-evals.php
 php tests/evals/test-runner.php
 php tests/evals/validate-links.php
+php tests/evals/validate-coverage-matrix.php
+php tests/evals/test-coverage-matrix.php
 ```
 
 ## Pull requests
