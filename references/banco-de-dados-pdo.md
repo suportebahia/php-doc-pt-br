@@ -31,6 +31,8 @@ Em preparação nativa, cada ocorrência de valor deve ter um marcador apropriad
 
 - Fontes: [PDO::prepare](https://www.php.net/manual/pt_BR/pdo.prepare.php), [prepared statements](https://www.php.net/manual/pt_BR/pdo.prepared-statements.php), [erros do PDO](https://www.php.net/manual/pt_BR/pdo.error-handling.php)
 
+Conforme o manual, valores fornecidos como array a `PDOStatement::execute()` são tratados como strings. Isso descreve a API e não indica, por si só, um problema neste exemplo. Se a aplicação precisar de tipos específicos, vincule os valores explicitamente, por exemplo com `bindValue()` e o tipo apropriado. A semântica de `rowCount()` e das transações depende do driver e do SGBD; como recomendação, valide o comportamento usado pela aplicação com testes de integração por driver.
+
 ## Transações e concorrência
 
 Use transações para operações que precisam ser confirmadas ou revertidas em conjunto. Confirme se o driver, o SGBD e o mecanismo das tabelas oferecem a semântica esperada. Níveis de isolamento, locks, comportamento de DDL e deadlocks dependem do SGBD; uma transação não resolve sozinha todas as disputas concorrentes.

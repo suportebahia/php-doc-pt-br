@@ -24,7 +24,7 @@ header('Location: /pedidos');
 exit;
 ```
 
-Use o status apropriado ao contrato. Por exemplo, 405 indica método não permitido e deve anunciar métodos aceitos quando aplicável. Uma resposta a `HEAD`, ou status como 204/304, não deve carregar conteúdo conforme a semântica HTTP; verifique o comportamento observável da aplicação/servidor.
+Use o status apropriado ao contrato. Por exemplo, toda resposta 405 deve incluir `Allow`, anunciando os métodos atualmente permitidos; se nenhum método estiver permitido temporariamente, o valor pode ser vazio. Uma resposta a `HEAD`, ou status como 204/304, não deve carregar conteúdo conforme a semântica HTTP; verifique o comportamento observável da aplicação/servidor.
 
 Cookies também são enviados em cabeçalhos. Configure-os antes da saída e de acordo com HTTPS, domínio, caminho, expiração e fluxo do produto. Consulte o guia de segurança para sessões, autorização e CSRF.
 

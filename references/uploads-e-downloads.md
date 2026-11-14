@@ -61,8 +61,10 @@ Exija autenticação e autorização para o usuário e recurso corretos antes de
 
 ## Downloads
 
-Associe um identificador opaco a um registro autorizado no servidor. Não aceite um caminho arbitrário do cliente e não concatene entrada para formar um caminho de arquivo. Após autorizar o recurso, abra o arquivo de uma raiz controlada e defina cabeçalhos de tipo e disposição segundo o conteúdo e o contrato.
+Associe um identificador opaco a um registro autorizado no servidor. Em cada download, autentique o usuário quando o fluxo exigir identidade e verifique sua autorização para aquele recurso; um identificador opaco não concede acesso. Não aceite um caminho arbitrário do cliente e não concatene entrada para formar um caminho de arquivo. Após autorizar o recurso, abra o arquivo de uma raiz controlada e defina cabeçalhos de tipo e disposição segundo o conteúdo e o contrato.
 
-Para arquivos grandes, prefira fluxo/streaming em vez de carregar todo o conteúdo em memória. Proteja nomes em `Content-Disposition`, teste caracteres especiais e não exponha caminhos físicos. A política de cache, range requests e expiração depende do produto e do servidor.
+Para conteúdo não confiável, determine o tipo no servidor e escolha a disposição conforme o produto; quando apropriado, use `Content-Disposition: attachment` e `X-Content-Type-Options: nosniff`. Não reutilize diretamente o nome enviado pelo cliente: gere ou codifique um nome seguro para `Content-Disposition`, teste caracteres especiais e não exponha caminhos físicos. Para arquivos grandes, prefira fluxo/streaming em vez de carregar todo o conteúdo em memória. A autorização, os cabeçalhos efetivamente enviados, o streaming, a política de cache, range requests e expiração dependem da aplicação, do SAPI e do proxy; teste a combinação usada na implantação.
+
+Para contexto de [autenticação e autorização](seguranca-essencial.md#senhas-autenticação-e-autorização), [sessões e CSRF](seguranca-essencial.md#sessões-e-csrf) e [processamento de uploads](#receber-um-upload) / [orientações de segurança para uploads](seguranca-essencial.md#uploads-e-ssrf), consulte também o guia de segurança.
 
 - Fonte adicional: [OWASP File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)

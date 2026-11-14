@@ -1,6 +1,6 @@
-# Índice Geral do Manual Oficial do PHP (pt-BR)
+# Índice Temático Seletivo do Manual Oficial do PHP (pt-BR)
 
-Catálogo estruturado das seções fundamentais do manual oficial do PHP em português (`https://www.php.net/manual/pt_BR/`). Use este índice para localizar páginas canônicas ao fundamentar respostas e decisões técnicas.
+Seleção temática de páginas do manual oficial do PHP em português (`https://www.php.net/manual/pt_BR/`), organizada em cinco grupos. Este índice não é um inventário completo do manual. Use-o para localizar páginas canônicas ao fundamentar respostas e decisões técnicas.
 
 ---
 

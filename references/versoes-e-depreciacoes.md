@@ -2,6 +2,8 @@
 
 Esta referência é seletiva. Não substitui os guias oficiais de migração nem representa uma lista exaustiva. Os exemplos do repositório usam PHP 8.2 como base, salvo indicação explícita; isso descreve compatibilidade pretendida, não recomenda manter em produção uma versão fora de suporte.
 
+Compatibilidade do guia e atualidade do runtime são questões distintas: o baseline 8.2 não significa que essa versão continue sendo uma escolha recomendada para produção, nem muda automaticamente quando uma nova versão do PHP é lançada.
+
 ## Marcos selecionados
 
 - **PHP 8.0:** argumentos nomeados, expressão `match` e `str_contains()`.
@@ -9,7 +11,7 @@ Esta referência é seletiva. Não substitui os guias oficiais de migração nem
 - **PHP 8.2:** classes `readonly` e depreciação de propriedades dinâmicas em classes que não as permitem.
 - **PHP 8.3:** `json_validate()`, constantes de classe tipadas e atributo `#[Override]`.
 - **PHP 8.4:** property hooks e visibilidade assimétrica de propriedades, além de outras mudanças.
-- **PHP 8.5:** pipe operator e recursos adicionais; consulte a página de lançamento e o guia de migração antes de usar cada recurso.
+- **PHP 8.5:** pipe operator e recursos adicionais. O pipe operator exige runtime PHP 8.5; sua inclusão entre os marcos não eleva o baseline do guia. Antes de adotar recursos novos, consulte as notas de incompatibilidades e depreciações da versão.
 
 `json_validate()` está disponível nativamente a partir do PHP 8.3. Em PHP 8.2, use `json_decode()` com `JSON_THROW_ON_ERROR` quando precisar validar e obter o valor.
 
@@ -52,4 +54,4 @@ Se o projeto usa Composer, `config.platform` simula a plataforma na resolução;
 
 A lista acima é ilustrativa, não exaustiva. Consulte as notas de migração específicas para PHP 8.2, 8.3, 8.4 e 8.5 antes de atualizar.
 
-- Fontes: [novidades PHP 8.3](https://www.php.net/releases/8.3/en.php), [migração 8.4](https://www.php.net/manual/en/migration84.php), [novidades PHP 8.4](https://www.php.net/manual/en/migration84.new-features.php), [migração 8.5](https://www.php.net/manual/en/migration85.php), [lançamento PHP 8.5](https://www.php.net/releases/8.5/en.php), [suporte PHP](https://www.php.net/supported-versions.php)
+- Guias e lançamentos oficiais, conforme links registrados para esta revisão: PHP 8.0 — [lançamento](https://www.php.net/releases/8.0/en.php) e [incompatibilidades na migração](https://www.php.net/manual/en/migration80.incompatible.php); PHP 8.2 — [lançamento](https://www.php.net/releases/8.2/en.php) e [depreciações na migração](https://www.php.net/manual/en/migration82.deprecated.php); PHP 8.3 — [lançamento](https://www.php.net/releases/8.3/en.php); PHP 8.4 — [guia de migração](https://www.php.net/manual/en/migration84.php) e [novidades](https://www.php.net/manual/en/migration84.new-features.php); PHP 8.5 — [lançamento](https://www.php.net/releases/8.5/en.php), [guia de migração](https://www.php.net/manual/en/migration85.php), [incompatibilidades](https://www.php.net/manual/en/migration85.incompatible.php) e [depreciações](https://www.php.net/manual/en/migration85.deprecated.php). Consulte também [versões suportadas pelo PHP](https://www.php.net/supported-versions.php).

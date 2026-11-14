@@ -10,7 +10,7 @@ Teste a criação em banco vazio e atualização de versões existentes. Simule 
 
 ## DDL e transações
 
-Não presuma que DDL participa de uma transação como uma alteração DML. Comportamento e bloqueio variam por SGBD, engine e operação. Por exemplo, MySQL pode confirmar implicitamente algumas instruções DDL. Consulte documentação do banco e ferramenta de migração escolhidos e ensaie em cópia representativa.
+Não presuma que DDL tenha comportamento transacional portátil. A possibilidade de executar ou reverter DDL em uma transação depende do SGBD, da engine e da instrução; o driver e a ferramenta de migração também podem impor limites. No MySQL, algumas instruções causam commit implícito ([documentação de commits implícitos](https://dev.mysql.com/doc/refman/8.4/en/implicit-commit.html)); isso não significa que todo DDL faça commit nem se aplica automaticamente a outros SGBDs. Consulte a documentação correspondente à combinação em uso e teste em ambiente representativo antes de depender de rollback.
 
 Considere estratégia expand/contract para mudanças que precisam coexistir com versões antigas e novas da aplicação. Defina lock, tempo de execução, backup/restore, monitoramento e rollback antes do deploy de mudanças de alto risco.
 

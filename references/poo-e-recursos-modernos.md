@@ -1,6 +1,6 @@
 # Orientação a objetos e recursos modernos do PHP
 
-Os exemplos executáveis deste guia têm como base PHP 8.2. Cada recurso citado indica a versão em que foi introduzido; confirme também a compatibilidade das extensões e do framework do projeto. Este material resume decisões comuns e não substitui o manual.
+Os exemplos executáveis deste guia têm como base PHP 8.2. As seções de recursos principais indicam a versão de introdução quando relevante; menções contextuais, como `Generator` e `Throwable`, não são uma lista completa nem necessariamente trazem essa data. Confirme a compatibilidade com a versão-alvo, as extensões e o framework do projeto. Este material resume decisões comuns e não substitui o manual.
 
 ## Classes, contratos e composição
 
@@ -82,9 +82,9 @@ readonly class Endereco
 }
 ```
 
-Não confunda a restrição de escrita de uma propriedade com imutabilidade profunda de todo o grafo de objetos. Verifique ainda as mudanças da versão-alvo: a semântica de `readonly` recebeu evoluções depois do PHP 8.2.
+Não confunda a restrição de escrita de uma propriedade com imutabilidade profunda de todo o grafo de objetos. No PHP 8.3, uma propriedade `readonly` pode ser reinicializada durante a clonagem, dentro de `__clone()`; isso não permite reatribuí-la livremente após a inicialização. No PHP 8.4, a visibilidade assimétrica de propriedades (por exemplo, `public private(set)`) separa as permissões de leitura e escrita; é um recurso distinto de `readonly`, não uma liberação geral de suas restrições. Consulte as notas da versão-alvo antes de usar esses recursos.
 
-- Fonte: [propriedades e classes `readonly`](https://www.php.net/manual/pt_BR/language.oop5.basic.php#language.oop5.basic.class.readonly)
+- Fontes: [propriedades e classes `readonly`](https://www.php.net/manual/pt_BR/language.oop5.basic.php#language.oop5.basic.class.readonly), [novos recursos do PHP 8.3](https://www.php.net/manual/en/migration83.new-features.php), [novos recursos do PHP 8.4](https://www.php.net/manual/en/migration84.new-features.php)
 
 ## Enums e `match`
 
@@ -114,7 +114,9 @@ function rotulo(StatusPedido $status): string
 
 `StatusPedido::from()` lança `ValueError` para um valor sem caso correspondente; `tryFrom()` retorna `null`. Escolha a estratégia conforme a validação e o tratamento de erro do domínio.
 
-- Fontes: [enumerações](https://www.php.net/manual/pt_BR/language.enumerations.php), [expressão `match`](https://www.php.net/manual/pt_BR/control-structures.match.php)
+Se nenhuma condição de uma expressão `match` corresponder e não houver braço `default`, o PHP lança `UnhandledMatchError`. Inclua um `default` quando o domínio exigir tratamento explícito de valores não mapeados; em enums fechados, um `match` exaustivo pode ser adequado se essa falha for a política pretendida.
+
+- Fontes: [enumerações](https://www.php.net/manual/pt_BR/language.enumerations.php), [expressão `match`](https://www.php.net/manual/pt_BR/control-structures.match.php), [`UnhandledMatchError`](https://www.php.net/manual/en/class.unhandledmatcherror.php)
 
 ## Atributos, generators e fibers
 

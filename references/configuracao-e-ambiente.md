@@ -4,7 +4,7 @@ Mantenha configurações separadas do código e evite incluir credenciais no rep
 
 ## Arquivo de exemplo e segredos
 
-Um `.env.example` pode documentar nomes e valores fictícios, sem conter credenciais reais. Ignore o `.env` local no Git e verifique o estado do repositório antes de publicar alterações. Se um segredo for exposto, removê-lo do último commit não invalida cópias ou histórico; rode-o e substitua-o.
+Um `.env.example` pode documentar nomes e valores fictícios, sem conter credenciais reais. Ignore o `.env` local no Git e verifique o estado do repositório antes de publicar alterações. Se um segredo for exposto, trate-o como comprometido: revogue-o ou faça uma rotação coordenada, atualize os serviços que o consomem e invalide o valor antigo. Removê-lo do último commit não invalida cópias ou histórico.
 
 ```dotenv
 APP_ENV=local
@@ -14,6 +14,8 @@ DB_DATABASE=app_local
 DB_USERNAME=usuário_local
 DB_PASSWORD=
 ```
+
+A linha `DB_PASSWORD=` é apenas um marcador vazio: antes de usar `obterVariavelObrigatoria()` para essa variável, defina um valor não vazio na configuração local não versionada ou no mecanismo protegido do ambiente. Se a aplicação aceitar senha vazia, trate essa opção conforme o contrato dela, em vez de passá-la à função obrigatória.
 
 Em produção, use o mecanismo de segredos da plataforma ou uma configuração protegida. Evite guardar segredos em imagens de container, arquivos versionados, logs ou argumentos de processo. Restrinja as permissões de quem pode ler os segredos.
 
