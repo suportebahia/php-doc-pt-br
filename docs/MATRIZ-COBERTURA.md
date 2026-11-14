@@ -223,12 +223,12 @@ Cada Markdown de primeiro nível em `references/` deve aparecer numa linha da ma
 <!-- source-manifest: references/indice-geral-manual-ptbr.md sha256=3b46211ba733a7d0aa1298383d3c198a94dce6815a490584a7dec9e5dcc5c10d -->
 | `references/json-xml-csv.md` | `6f7f822268486a928bb3b89265011bb029816622cc1e2bf06c74987e5d8583d8` |
 <!-- source-manifest: references/json-xml-csv.md sha256=6f7f822268486a928bb3b89265011bb029816622cc1e2bf06c74987e5d8583d8 -->
-| `references/padroes-de-desenvolvimento.md` | `d6ef5e2324a9aeaf1cdf1c2301dd15eeeacd5036a32cfff6104aaf8d31a6000f` |
-<!-- source-manifest: references/padroes-de-desenvolvimento.md sha256=d6ef5e2324a9aeaf1cdf1c2301dd15eeeacd5036a32cfff6104aaf8d31a6000f -->
+| `references/padroes-de-desenvolvimento.md` | `167ee7e810a7e560648d2cb4c9f0d3e6dfbea18356bcfe0cbe2deadba66c1667` |
+<!-- source-manifest: references/padroes-de-desenvolvimento.md sha256=167ee7e810a7e560648d2cb4c9f0d3e6dfbea18356bcfe0cbe2deadba66c1667 -->
 | `references/performance-concorrencia-e-operacao.md` | `fc7e5b3121c3ecac91e48c378b69085b78a1396ba7f275651d165e4dd67a51c7` |
 <!-- source-manifest: references/performance-concorrencia-e-operacao.md sha256=fc7e5b3121c3ecac91e48c378b69085b78a1396ba7f275651d165e4dd67a51c7 -->
-| `references/poo-e-recursos-modernos.md` | `0edd5e83987a8af079d2a63596669891da7f38f42684c70ea09f00c4aa753923` |
-<!-- source-manifest: references/poo-e-recursos-modernos.md sha256=0edd5e83987a8af079d2a63596669891da7f38f42684c70ea09f00c4aa753923 -->
+| `references/poo-e-recursos-modernos.md` | `849dc0be778aea57a07715fad1ffa5c6fa8ee43e365a96d5c1b3ec0f59fccece` |
+<!-- source-manifest: references/poo-e-recursos-modernos.md sha256=849dc0be778aea57a07715fad1ffa5c6fa8ee43e365a96d5c1b3ec0f59fccece -->
 | `references/runtime-cli-fpm.md` | `a3a278a7d46d82889ee90e6957e2e30d80666c27dbfa87d7bddb234302e5560d` |
 <!-- source-manifest: references/runtime-cli-fpm.md sha256=a3a278a7d46d82889ee90e6957e2e30d80666c27dbfa87d7bddb234302e5560d -->
 | `references/schema-e-migrations.md` | `60ed1bbc1f093ed03d019874aaee388fc8876bcb1c19c4da7da6442169f06a76` |

@@ -22,9 +22,11 @@ php tests/evals/run-evals.php --validate-only
 php tests/evals/run-evals.php
 php tests/evals/test-runner.php
 php tests/evals/validate-links.php
+php tests/evals/validate-coverage-matrix.php
+php tests/evals/test-coverage-matrix.php
 ```
 
-O CI mantém a matriz PHP 8.2–8.5 e executa a validação, as verificações textuais e sintáticas, os testes funcionais allowlistados e a validação de links. O CI não executa snippets Markdown nem uma avaliação `--live`. Os testes de regressão que exercitam a opção `--live` com comandos PHP sintéticos e fixos são omitidos quando `CI=true`; localmente, eles não usam agente externo. O próprio modo `--live` executa um programa local escolhido pelo usuário, não é sandbox e não deve ser usado como fronteira de segurança.
+O CI mantém a matriz PHP 8.2–8.5 e executa a validação, as verificações textuais e sintáticas, os testes funcionais allowlistados, a validação e os testes sintéticos da matriz de cobertura e a validação de links. O CI não executa snippets Markdown nem uma avaliação `--live`. Os testes de regressão que exercitam a opção `--live` com comandos PHP sintéticos e fixos são omitidos quando `CI=true`; localmente, eles não usam agente externo. O próprio modo `--live` executa um programa local escolhido pelo usuário, não é sandbox e não deve ser usado como fronteira de segurança.
 
 Os filtros `--case=...` são convenientes durante o desenvolvimento; o CI executa o conjunto textual completo. Blocos que requerem versão posterior ao baseline devem ser precedidos por `<!-- php-min: X.Y -->` e são analisados nas versões compatíveis da matriz.
 
