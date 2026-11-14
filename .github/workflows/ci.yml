@@ -35,6 +35,8 @@ jobs:
           php -l tests/evals/run-evals.php
           php -l tests/evals/test-runner.php
           php -l tests/evals/validate-links.php
+          php -l tests/evals/validate-coverage-matrix.php
+          php -l tests/evals/test-coverage-matrix.php
           find tests/evals/fixtures -type f -name '*.php' -print0 | xargs -0 -r -n1 php -l
 
       - name: Validar casos e executar verificações estáticas
@@ -42,6 +44,8 @@ jobs:
           php tests/evals/run-evals.php --validate-only
           php tests/evals/run-evals.php
           php tests/evals/test-runner.php
+          php tests/evals/validate-coverage-matrix.php
+          php tests/evals/test-coverage-matrix.php
 
       - name: Validar formato e domínio dos links
         run: php tests/evals/validate-links.php
